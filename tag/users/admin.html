@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сайт користувача 123456</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #202124; color: white; text-align: center; padding: 20px; }
+        img { max-width: 200px; display: block; margin: 10px auto; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Привіт, користувач 123456!</h1>
+
+    <h3>Фото:</h3>
+    <img id="photoPreview" src="" alt="Фото не завантажено">
+
+    <h3>Звук:</h3>
+    <audio id="audioPlayer" controls></audio>
+
+    <script>
+        function loadData() {
+            let savedSound = localStorage.getItem("sound_123456");
+            if (savedSound) {
+                document.getElementById("audioPlayer").src = savedSound;
+            }
+            let savedPhoto = localStorage.getItem("photo_123456");
+            if (savedPhoto) {
+                document.getElementById("photoPreview").src = savedPhoto;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadData);
+    </script>
+
+</body>
+</html>
