@@ -17,12 +17,12 @@ $(document).ready(function () {
 						case 'wrongpassword':
 							password.classList.add('is-invalid')
 							errlabel_div.classList.remove('hidden')
-							errlabel.innerHTML = '<strong>Вы ввели неверный пароль!</strong>'
+							errlabel.innerHTML = '<strong>Ви ввели неправильеий пароль!</strong>'
 							break
 						case 'wrongaccount':
 							username.classList.add('is-invalid')
 							errlabel_div.classList.remove('hidden')
-							errlabel.innerHTML = '<strong>Вы ввели неверное имя пользователя или аккаунт несуществует!</strong>'
+							errlabel.innerHTML = '<strong>Ви ввели неправильний акаунт!</strong>'
 							break
 					}
 					break
