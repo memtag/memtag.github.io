@@ -3,58 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сталася невідома помилка</title>
+    <title>Профіль користувача</title>
     <script src="https://cdn.tailwindcss.com/"></script>
 </head>
-<body class="bg-gray-900 text-white flex flex-col items-center justify-center h-screen">
-    <div id="errorMessage" class="text-center">
-        <img id="errorImage" src="default.png" alt="Помилка" class="w-24 h-24 mb-4">
-        <h1 class="text-xl font-bold">Неможливо отримати доступ до сайту</h1>
-        <button id="retryButton" class="bg-blue-500 px-6 py-2 rounded-md mt-4">Перезапустити</button>
-    </div>
+<body class="bg-gray-900 text-white flex flex-col justify-center items-center h-screen">
 
-    <div id="soundPlaying" class="hidden text-center">
-        <img id="displayImage" src="default.png" alt="Зображення" class="w-32 mb-4">
-        <button id="muteButton" class="bg-gray-700 px-6 py-2 rounded-md">🔇 Заглушити</button>
-    </div>
+    <img id="profileImage" src="" alt="Фото" class="w-40 h-40 rounded-full mb-4">
+    <button id="playSound" class="bg-blue-500 p-2 rounded hover:bg-blue-600">🔊 Відтворити звук</button>
 
-    <audio id="funSound" loop></audio>
+    <audio id="audioPlayer" src="" loop></audio>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const errorMessage = document.getElementById('errorMessage');
-            const soundPlaying = document.getElementById('soundPlaying');
-            const sound = document.getElementById('funSound');
-            const retryButton = document.getElementById('retryButton');
-            const muteButton = document.getElementById('muteButton');
-            const displayImage = document.getElementById('displayImage');
-            const errorImage = document.getElementById('errorImage');
+        const user = window.location.pathname.split("/").pop().replace(".html", "");
+        const sound = localStorage.getItem(`sound_${user}`);
+        const image = localStorage.getItem(`image_${user}`);
 
-            const savedImage = localStorage.getItem('uploadedImage');
-            const savedAudio = localStorage.getItem('uploadedAudio');
+        if (sound) {
+            document.getElementById("audioPlayer").src = sound;
+        }
 
-            if (savedImage) {
-                displayImage.src = savedImage;
-                errorImage.src = savedImage;
-            }
-            if (savedAudio) {
-                sound.src = savedAudio;
-            }
+        if (image) {
+            document.getElementById("profileImage").src = image;
+        } else {
+            document.getElementById("profileImage").src = "https://via.placeholder.com/150";
+        }
 
-            retryButton.addEventListener('click', function () {
-                if (sound.src) {
-                    sound.volume = 1.0;
-                    sound.play().then(() => {
-                        errorMessage.classList.add('hidden');
-                        soundPlaying.classList.remove('hidden');
-                    }).catch(() => alert('Спробуйте ще раз.'));
-                }
-            });
-
-            muteButton.addEventListener('click', function () {
-                sound.pause();
-            });
+        document.getElementById("playSound").addEventListener("click", () => {
+            document.getElementById("audioPlayer").play();
         });
     </script>
+
 </body>
 </html>
