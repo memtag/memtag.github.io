@@ -4,104 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Панель керування</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #202124; color: white; text-align: center; padding: 20px; }
-        input, button { padding: 10px; margin: 10px; font-size: 16px; }
-        #panel { display: none; }
-        img { max-width: 200px; display: block; margin: 10px auto; border-radius: 10px; }
-    </style>
+    <script src="https://cdn.tailwindcss.com/"></script>
 </head>
-<body>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center h-screen">
+    <h1 class="text-2xl font-bold mb-4">Керування сайтом</h1>
+    
+    <form id="uploadForm" class="flex flex-col items-center gap-4">
+        <label class="block">
+            <span class="text-gray-300">Оберіть фото</span>
+            <input type="file" id="imageUpload" accept="image/*" class="block w-full text-sm text-gray-500 mt-2">
+        </label>
 
-    <h1>Вхід у панель</h1>
-    <div id="login">
-        <input type="text" id="username" placeholder="Логін (6 цифр)">
-        <input type="password" id="password" placeholder="Пароль (6 цифр)">
-        <button onclick="login()">Увійти</button>
-        <p id="error" style="color: red; display: none;">Невірний логін або пароль!</p>
-    </div>
+        <label class="block">
+            <span class="text-gray-300">Оберіть звук</span>
+            <input type="file" id="audioUpload" accept="audio/*" class="block w-full text-sm text-gray-500 mt-2">
+        </label>
 
-    <div id="panel">
-        <h2>Завантажити звук</h2>
-        <input type="file" id="fileInput" accept="audio/*">
-        <button onclick="uploadSound()">Зберегти</button>
+        <button type="button" id="saveButton" class="bg-blue-500 px-6 py-2 rounded-md hover:bg-blue-600">
+            Зберегти
+        </button>
+    </form>
 
-        <h2>Завантажити фото</h2>
-        <input type="file" id="photoInput" accept="image/*">
-        <button onclick="uploadPhoto()">Зберегти</button>
-
-        <h3>Попередній звук:</h3>
-        <audio id="audioPlayer" controls></audio>
-
-        <h3>Попереднє фото:</h3>
-        <img id="photoPreview" src="" alt="Фото не завантажено">
-    </div>
+    <p id="statusMessage" class="text-green-400 mt-4 hidden">Дані оновлено!</p>
 
     <script>
-        let users = {
-            "admin": "admin",
-            "987654": "456789",
-            "234567": "345678"
-            // Додай ще 97 пар логінів та паролів
-        };
+        document.getElementById('saveButton').addEventListener('click', function () {
+            const imageFile = document.getElementById('imageUpload').files[0];
+            const audioFile = document.getElementById('audioUpload').files[0];
 
-        let currentUser = null;
-
-        function login() {
-            let username = document.getElementById("username").value;
-            let password = document.getElementById("password").value;
-
-            if (users[username] && users[username] === password) {
-                currentUser = username;
-                document.getElementById("login").style.display = "none";
-                document.getElementById("panel").style.display = "block";
-                loadData();
-            } else {
-                document.getElementById("error").style.display = "block";
-            }
-        }
-
-        function uploadSound() {
-            const file = document.getElementById("fileInput").files[0];
-            if (!file) {
-                alert("Виберіть файл!");
+            if (!imageFile && !audioFile) {
+                alert('Виберіть файл для оновлення!');
                 return;
             }
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                localStorage.setItem(`sound_${currentUser}`, event.target.result);
-                alert("Звук збережено!");
-                loadData();
-            };
-            reader.readAsDataURL(file);
-        }
 
-        function uploadPhoto() {
-            const file = document.getElementById("photoInput").files[0];
-            if (!file) {
-                alert("Виберіть фото!");
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                localStorage.setItem(`photo_${currentUser}`, event.target.result);
-                alert("Фото збережено!");
-                loadData();
-            };
-            reader.readAsDataURL(file);
-        }
+            const formData = new FormData();
+            if (imageFile) formData.append('image', imageFile);
+            if (audioFile) formData.append('audio', audioFile);
 
-        function loadData() {
-            let savedSound = localStorage.getItem(`sound_${currentUser}`);
-            if (savedSound) {
-                document.getElementById("audioPlayer").src = savedSound;
-            }
-            let savedPhoto = localStorage.getItem(`photo_${currentUser}`);
-            if (savedPhoto) {
-                document.getElementById("photoPreview").src = savedPhoto;
-            }
-        }
+            localStorage.setItem('uploadedImage', imageFile ? URL.createObjectURL(imageFile) : localStorage.getItem('uploadedImage'));
+            localStorage.setItem('uploadedAudio', audioFile ? URL.createObjectURL(audioFile) : localStorage.getItem('uploadedAudio'));
+
+            document.getElementById('statusMessage').classList.remove('hidden');
+            setTimeout(() => document.getElementById('statusMessage').classList.add('hidden'), 2000);
+        });
     </script>
-
 </body>
 </html>
