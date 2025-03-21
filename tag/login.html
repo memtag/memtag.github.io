@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель керування</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
+</head>
+<body class="bg-gray-900 text-white flex justify-center items-center h-screen">
+
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
+        <h2 class="text-2xl font-bold text-center mb-4">Вхід</h2>
+        <input id="username" type="text" placeholder="Логін" class="w-full p-2 mb-2 rounded bg-gray-700 text-white">
+        <input id="password" type="password" placeholder="Пароль" class="w-full p-2 mb-2 rounded bg-gray-700 text-white">
+        <button onclick="login()" class="w-full bg-blue-500 p-2 rounded hover:bg-blue-600">Увійти</button>
+    </div>
+
+    <script>
+        async function login() {
+            const user = document.getElementById("username").value;
+            const pass = document.getElementById("password").value;
+            const response = await fetch("pswd.txt");
+            const credentials = await response.text();
+            const lines = credentials.split("\n");
+            const valid = lines.some(line => line.trim() === `${user}:${pass}`);
+
+            if (valid) {
+                localStorage.setItem("user", user);
+                window.location.href = `panel.html?user=${user}`;
+            } else {
+                alert("Неправильний логін або пароль!");
+            }
+        }
+    </script>
+
+</body>
+</html>
