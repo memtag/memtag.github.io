@@ -3,36 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сайт користувача 123456</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #202124; color: white; text-align: center; padding: 20px; }
-        img { max-width: 200px; display: block; margin: 10px auto; border-radius: 10px; }
-    </style>
+    <title>Сталася невідома помилка</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
 </head>
-<body>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center h-screen">
+    <div id="errorMessage" class="text-center">
+        <img id="errorImage" src="default.png" alt="Помилка" class="w-24 h-24 mb-4">
+        <h1 class="text-xl font-bold">Неможливо отримати доступ до сайту</h1>
+        <button id="retryButton" class="bg-blue-500 px-6 py-2 rounded-md mt-4">Перезапустити</button>
+    </div>
 
-    <h1>Привіт, користувач 123456!</h1>
+    <div id="soundPlaying" class="hidden text-center">
+        <img id="displayImage" src="default.png" alt="Зображення" class="w-32 mb-4">
+        <button id="muteButton" class="bg-gray-700 px-6 py-2 rounded-md">🔇 Заглушити</button>
+    </div>
 
-    <h3>Фото:</h3>
-    <img id="photoPreview" src="" alt="Фото не завантажено">
-
-    <h3>Звук:</h3>
-    <audio id="audioPlayer" controls></audio>
+    <audio id="funSound" loop></audio>
 
     <script>
-        function loadData() {
-            let savedSound = localStorage.getItem("sound_123456");
-            if (savedSound) {
-                document.getElementById("audioPlayer").src = savedSound;
-            }
-            let savedPhoto = localStorage.getItem("photo_123456");
-            if (savedPhoto) {
-                document.getElementById("photoPreview").src = savedPhoto;
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const errorMessage = document.getElementById('errorMessage');
+            const soundPlaying = document.getElementById('soundPlaying');
+            const sound = document.getElementById('funSound');
+            const retryButton = document.getElementById('retryButton');
+            const muteButton = document.getElementById('muteButton');
+            const displayImage = document.getElementById('displayImage');
+            const errorImage = document.getElementById('errorImage');
 
-        document.addEventListener("DOMContentLoaded", loadData);
+            const savedImage = localStorage.getItem('uploadedImage');
+            const savedAudio = localStorage.getItem('uploadedAudio');
+
+            if (savedImage) {
+                displayImage.src = savedImage;
+                errorImage.src = savedImage;
+            }
+            if (savedAudio) {
+                sound.src = savedAudio;
+            }
+
+            retryButton.addEventListener('click', function () {
+                if (sound.src) {
+                    sound.volume = 1.0;
+                    sound.play().then(() => {
+                        errorMessage.classList.add('hidden');
+                        soundPlaying.classList.remove('hidden');
+                    }).catch(() => alert('Спробуйте ще раз.'));
+                }
+            });
+
+            muteButton.addEventListener('click', function () {
+                sound.pause();
+            });
+        });
     </script>
-
 </body>
 </html>
