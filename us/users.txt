@@ -1,1 +1,6 @@
-000 memtag.github.io/b/s/ p=1; e=0;
+000 [https://memtag.github.io/b/s/] p=1; e=0; //Я
+001 [https://memtag.github.io/b/s/] p=1; e=0; //Ярик
+002 [https://memtag.github.io/b/s/] p=1; e=0;
+003 [https://memtag.github.io/b/s/] p=1; e=0;
+004 [https://memtag.github.io/b/s/] p=1; e=0;
+005 [https://memtag.github.io/b/s/] p=1; e=0;
