@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Перевірка користувачів</title>
+    <title>Сталася невідома помилка</title>
     <script>
         async function checkUser() {
             const response = await fetch('users.txt');
@@ -16,20 +16,15 @@
         }
         
         const urlMatch = userEntry.match(/url=(.*?)/);
-        const pMatch = userEntry.match(/p=(\d+)/);
         const eMatch = userEntry.match(/e=(\d+)/);
         
         const targetUrl = urlMatch ? urlMatch[1] : null;
-        const redirect = pMatch ? pMatch[1] === '1' : false;
         const block = eMatch ? eMatch[1] === '1' : false;
         
         if (block) {
             window.location.href = 'block.html';
-            return;
-        }
-        
-        if (redirect && targetUrl) {
-            window.location.href = targetUrl;
+        } else if (targetUrl) {
+            window.location.replace(targetUrl);
         } else {
             window.close();
         }
