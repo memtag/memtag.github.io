@@ -1,63 +1,44 @@
-<!DOCTYPE html><html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сталася невідома помилка</title>
-    <script>
-        async function checkUser() {
-            try {
-                console.log("Завантаження users.txt...");
-                const response = await fetch('users.txt?' + new Date().getTime());
-                if (!response.ok) throw new Error("Не вдалося завантажити users.txt");
-                const text = await response.text();
-                console.log("Зміст users.txt:", text);const users = text.split('\n').map(line => line.trim()).filter(line => line);
-            const filename = window.location.pathname.split('/').pop().split('.')[0];
-            console.log("Назва файлу:", filename);
-            
-            const userEntry = users.find(u => u.startsWith(filename + ' '));
-            if (!userEntry) {
-                console.log("Користувач не знайдений, закриття сторінки.");
-                window.close();
-                return;
-            }
-            
-            console.log("Запис користувача:", userEntry);
-            const urlMatch = userEntry.match(/url=(.*?)/);
-            const eMatch = userEntry.match(/e=(\d+)/);
-            
-            const targetUrl = urlMatch ? urlMatch[1] : null;
-            const block = eMatch ? eMatch[1] === '1' : false;
-            
-            if (block) {
-                console.log("e=1, відкриття block.html");
-                window.location.href = 'block.html';
-            } else if (targetUrl) {
-                console.log("Перенаправлення на:", targetUrl);
-                window.location.replace(targetUrl);
-            } else {
-                console.log("Жодних дій, закриття сторінки.");
-                window.close();
-            }
-        } catch (error) {
-            console.error("Помилка:", error);
-        }
-    }
-    
-    window.onload = checkUser;
-</script>
-
-</head>
-<body>
-    <pre id="debug"></pre>
+<pre id="debug"></pre>
 <script>
-  fetch('users.txt?' + new Date().getTime()) 
-    .then(response => response.text())
-    .then(text => {
-      document.getElementById('debug').textContent = "Завантажено users.txt:\n" + text;
-    })
-    .catch(error => {
-      document.getElementById('debug').textContent = "Помилка завантаження: " + error;
-    });
+  async function checkUser() {
+    const pageName = location.pathname.split('/').pop().split('.')[0]; // Отримуємо назву файлу без ".html"
+
+    document.getElementById('debug').textContent = "Сторінка: " + pageName;
+
+    try {
+      const response = await fetch('users.txt?' + new Date().getTime());
+      const text = await response.text();
+      document.getElementById('debug').textContent += "\nusers.txt:\n" + text;
+
+      const lines = text.split('\n');
+      for (const line of lines) {
+        if (line.startsWith(pageName)) {
+          document.getElementById('debug').textContent += "\nЗнайдено запис: " + line;
+          
+          const urlMatch = line.match(/url=([^;]+)/);
+          const eMatch = line.match(/e=(\d+)/);
+
+          if (eMatch) {
+            const eValue = parseInt(eMatch[1], 10);
+            if (eValue === 1) {
+              document.getElementById('debug').textContent += "\nВідкриваємо block.html";
+              location.href = "block.html";
+              return;
+            }
+          }
+
+          if (urlMatch) {
+            const redirectUrl = urlMatch[1].trim();
+            document.getElementById('debug').textContent += "\nПеренаправлення на: " + redirectUrl;
+            location.href = redirectUrl;
+            return;
+          }
+        }
+      }
+    } catch (error) {
+      document.getElementById('debug').textContent = "Помилка: " + error;
+    }
+  }
+
+  checkUser();
 </script>
-</body>
-</html>
