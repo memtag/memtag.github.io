@@ -5,28 +5,41 @@
     <title>Сталася невідома помилка</title>
     <script>
         async function checkUser() {
-            const response = await fetch('users.txt');
-            const text = await response.text();
-            const users = text.split('\n').map(line => line.trim()).filter(line => line);const filename = window.location.pathname.split('/').pop().split('.')[0]; // Отримуємо назву файлу без розширення
-        
-        const userEntry = users.find(u => u.startsWith(filename + ' '));
-        if (!userEntry) {
-            window.close();
-            return;
-        }
-        
-        const urlMatch = userEntry.match(/url=(.*?)/);
-        const eMatch = userEntry.match(/e=(\d+)/);
-        
-        const targetUrl = urlMatch ? urlMatch[1] : null;
-        const block = eMatch ? eMatch[1] === '1' : false;
-        
-        if (block) {
-            window.location.href = 'block.html';
-        } else if (targetUrl) {
-            window.location.replace(targetUrl);
-        } else {
-            window.close();
+            try {
+                console.log("Завантаження users.txt...");
+                const response = await fetch('users.txt?' + new Date().getTime());
+                if (!response.ok) throw new Error("Не вдалося завантажити users.txt");
+                const text = await response.text();
+                console.log("Зміст users.txt:", text);const users = text.split('\n').map(line => line.trim()).filter(line => line);
+            const filename = window.location.pathname.split('/').pop().split('.')[0];
+            console.log("Назва файлу:", filename);
+            
+            const userEntry = users.find(u => u.startsWith(filename + ' '));
+            if (!userEntry) {
+                console.log("Користувач не знайдений, закриття сторінки.");
+                window.close();
+                return;
+            }
+            
+            console.log("Запис користувача:", userEntry);
+            const urlMatch = userEntry.match(/url=(.*?)/);
+            const eMatch = userEntry.match(/e=(\d+)/);
+            
+            const targetUrl = urlMatch ? urlMatch[1] : null;
+            const block = eMatch ? eMatch[1] === '1' : false;
+            
+            if (block) {
+                console.log("e=1, відкриття block.html");
+                window.location.href = 'block.html';
+            } else if (targetUrl) {
+                console.log("Перенаправлення на:", targetUrl);
+                window.location.replace(targetUrl);
+            } else {
+                console.log("Жодних дій, закриття сторінки.");
+                window.close();
+            }
+        } catch (error) {
+            console.error("Помилка:", error);
         }
     }
     
