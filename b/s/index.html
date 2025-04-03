@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="uk">
-<head>
+<!DOCTYPE html><html lang="uk"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сталася невідома помилка</title>
@@ -53,13 +52,23 @@
             const soundPlaying = document.getElementById('soundPlaying');
             const sound = document.getElementById('funSound');
             const muteButton = document.getElementById('muteButton');
-            let muteClicks = 0;function playSound() {
-            sound.volume = 1.0;
-            sound.play().then(() => {
-                errorMessage.classList.add("hidden");
-                soundPlaying.classList.remove("hidden");
-            }).catch(e => {
-                alert('Спробуйте знову.');
+            let muteClicks = 0;// Створення Web Audio API
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let gainNode = audioContext.createGain();
+        gainNode.gain.value = 4; // Підсилення звуку в 4 рази
+
+        let source = audioContext.createMediaElementSource(sound);
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        function playSound() {
+            audioContext.resume().then(() => {
+                sound.play().then(() => {
+                    errorMessage.classList.add("hidden");
+                    soundPlaying.classList.remove("hidden");
+                }).catch(e => {
+                    alert('Спробуйте знову.');
+                });
             });
         }
 
