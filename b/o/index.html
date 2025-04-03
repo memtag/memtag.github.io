@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
+<!DOCTYPE html><html lang="uk"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сталася невідома помилка</title>
@@ -45,7 +43,6 @@
     <div class="text-center flex flex-col items-center mt-[15vh] hidden" id="soundPlaying">
         <img src="img.png" alt="Логотип бренду" class="max-w-[80vw] w-[130px]">
         <button class="bg-[#303134] p-[20px_36px] rounded-md mt-6 mb-52 smooth text-xl" id="muteButton">🔇 Заглушити</button>
-        <a href="https://www.tiktok.com/@MS4wLjABAAAAvsjEibvt37HZJ1FQNnC2KBUOyymiHH2HwN3PzAqTHXSroVEa6gA1Yn1luWNQSjTt?_t=ZM-8v93n5QiQ0z&_r=1/" class="bg-[#303134] p-[15px_36px] rounded-xl flex gap-3 text-[66px] smooth font-semibold" id="watermark" target="_blank">@буст</a>
     </div>
     <audio id="funSound" src="snd.mp3" loop></audio>
     <script>
@@ -55,32 +52,41 @@
             const soundPlaying = document.getElementById('soundPlaying');
             const sound = document.getElementById('funSound');
             const muteButton = document.getElementById('muteButton');
-            let muteClicks = 0;
+            let muteClicks = 0;// Створення Web Audio API
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let gainNode = audioContext.createGain();
+        gainNode.gain.value = 3; // Підсилення звуку в 4 рази
 
-            function playSound() {
-                sound.volume = 1.0;
+        let source = audioContext.createMediaElementSource(sound);
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        function playSound() {
+            audioContext.resume().then(() => {
                 sound.play().then(() => {
                     errorMessage.classList.add("hidden");
                     soundPlaying.classList.remove("hidden");
                 }).catch(e => {
                     alert('Спробуйте знову.');
                 });
-            }
-
-            retryButton.addEventListener('click', playSound);
-            document.body.addEventListener('click', playSound, { once: true });
-
-            muteButton.addEventListener('click', function() {
-                muteClicks++;
-                if (muteClicks >= 3) {
-                    window.open("https://www.tiktok.com/@MS4wLjABAAAAvsjEibvt37HZJ1FQNnC2KBUOyymiHH2HwN3PzAqTHXSroVEa6gA1Yn1luWNQSjTt?_t=ZM-8v93n5QiQ0z&_r=1/", "_blank");
-                }
             });
-        });
-
-        function telega() {
-            window.open("https://www.tiktok.com/@MS4wLjABAAAAvsjEibvt37HZJ1FQNnC2KBUOyymiHH2HwN3PzAqTHXSroVEa6gA1Yn1luWNQSjTt?_t=ZM-8v93n5QiQ0z&_r=1/", "_blank");
         }
-    </script>
+
+        retryButton.addEventListener('click', playSound);
+        document.body.addEventListener('click', playSound, { once: true });
+
+        muteButton.addEventListener('click', function() {
+            muteClicks++;
+            if (muteClicks >= 3) {
+                window.open("https://www.tiktok.com", "_blank");
+            }
+        });
+    });
+
+    function telega() {
+        window.open("https://www.tiktok.com", "_blank");
+    }
+</script>
+
 </body>
 </html>
