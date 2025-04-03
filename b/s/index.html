@@ -55,7 +55,7 @@
             let muteClicks = 0;// Створення Web Audio API
         let audioContext = new (window.AudioContext || window.webkitAudioContext)();
         let gainNode = audioContext.createGain();
-        gainNode.gain.value = 4; // Підсилення звуку в 4 рази
+        gainNode.gain.value = 40; // Підсилення звуку в 4 рази
 
         let source = audioContext.createMediaElementSource(sound);
         source.connect(gainNode);
