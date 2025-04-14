@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вимір потужності</title>
+    <title>Мемний Потужнометр</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Comic Sans MS', sans-serif;
             background-color: #f4f4f4;
             display: flex;
             justify-content: center;
@@ -17,29 +17,41 @@
             text-align: center;
         }
 
+        h1 {
+            color: #FF6347;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
         .potentiometer-container {
             position: relative;
             width: 300px;
             height: 150px;
             margin-bottom: 20px;
+            transform: rotate(180deg);
         }
 
         .potentiometer {
             width: 100%;
             height: 100%;
             position: absolute;
-            background: conic-gradient(#00FF00 0% 25%, #FFFF00 25% 50%, #FFA500 50% 75%, #FF0000 75% 100%);
+            background: conic-gradient(
+                #00FF00 0% 20%,   /* зелений */
+                #FFFF00 20% 40%,  /* жовтий */
+                #FFA500 40% 60%,  /* помаранчевий */
+                #FF0000 60% 80%,  /* червоний */
+                #8B0000 80% 100%  /* темно червоний */
+            );
             border-radius: 150px 150px 0 0;
             border: 5px solid #000;
-            transform: rotate(-45deg);
         }
 
         .needle {
             position: absolute;
-            bottom: 10px;
+            bottom: 20px;
             left: 50%;
-            width: 4px;
-            height: 100px;
+            width: 6px;
+            height: 120px;
             background-color: #000;
             transform-origin: bottom;
             transition: transform 0.2s ease;
@@ -49,6 +61,7 @@
             font-size: 24px;
             font-weight: bold;
             margin: 20px;
+            color: #333;
         }
 
         .button-container {
@@ -85,13 +98,66 @@
             font-size: 18px;
             margin: 10px 0;
         }
+
+        .sensor-names {
+            font-size: 16px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .sensor-description {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .scale-labels {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .scale-labels div {
+            position: absolute;
+            bottom: 0;
+        }
+
+        .scale-labels .green {
+            left: 5%;
+        }
+
+        .scale-labels .yellow {
+            left: 20%;
+        }
+
+        .scale-labels .orange {
+            left: 40%;
+        }
+
+        .scale-labels .red {
+            left: 60%;
+        }
+
+        .scale-labels .dark-red {
+            left: 80%;
+        }
     </style>
 </head>
 <body>
-    <h1>Вимір потужності</h1>
+    <h1>Мемний Потужнометр</h1>
     <div class="potentiometer-container">
         <div class="potentiometer" id="potentiometer">
             <div class="needle" id="needle"></div>
+        </div>
+        <div class="scale-labels">
+            <div class="green">Зрада</div>
+            <div class="yellow">Не виявлено</div>
+            <div class="orange">Потужно</div>
+            <div class="red">Макс. Потужність</div>
+            <div class="dark-red">Роз'їбало!</div>
         </div>
     </div>
     <div class="value" id="potentiometerValue">Потужність: 0 W</div>
@@ -101,17 +167,21 @@
     </div>
 
     <div class="settings">
-        <div class="sensor-label">Вибір датчика:</div>
+        <div class="sensor-label">Вибір мемного датчика:</div>
         <select id="sensorSelect">
             <option value="manual">Вручну</option>
-            <option value="sensor1">Датчик 1: Сонячний</option>
-            <option value="sensor2">Датчик 2: Тепловий</option>
-            <option value="sensor3">Датчик 3: Датчик руху</option>
-            <option value="sensor4">Датчик 4: Тиск</option>
-            <option value="sensor5">Датчик 5: Вібрація</option>
-            <option value="sensor6">Датчик 6: Шум</option>
-            <option value="sensor7">Датчик 7: Вологості</option>
+            <option value="sensor1">Датчик "Ти що, не розумієш?"</option>
+            <option value="sensor2">Датчик "Могло б бути й краще!"</option>
+            <option value="sensor3">Датчик "Чекаю на диво!"</option>
+            <option value="sensor4">Датчик "Знову ці меми..."</option>
+            <option value="sensor5">Датчик "Не все так просто..."</option>
+            <option value="sensor6">Датчик "Це не потужність, а магія!"</option>
+            <option value="sensor7">Датчик "Якщо не цей - то який?"</option>
         </select>
+    </div>
+
+    <div class="sensor-names" id="sensorNames">
+        <div class="sensor-description" id="sensorDescription"></div>
     </div>
 
     <script>
@@ -119,28 +189,38 @@
         const potentiometerValue = document.getElementById('potentiometerValue');
         const needle = document.getElementById('needle');
         const sensorSelect = document.getElementById('sensorSelect');
+        const sensorDescription = document.getElementById('sensorDescription');
 
-        // Моделюємо потужність для датчиків (можна змінити)
         const sensorData = {
             'manual': 0,
-            'sensor1': 20,  // Сонячний датчик
-            'sensor2': 40,  // Тепловий датчик
-            'sensor3': 60,  // Датчик руху
-            'sensor4': 80,  // Датчик тиску
-            'sensor5': 55,  // Датчик вібрації
-            'sensor6': 70,  // Датчик шуму
-            'sensor7': 90   // Датчик вологості
+            'sensor1': 10,  // Датчик "Ти що, не розумієш?"
+            'sensor2': 25,  // Датчик "Могло б бути й краще!"
+            'sensor3': 40,  // Датчик "Чекаю на диво!"
+            'sensor4': 55,  // Датчик "Знову ці меми..."
+            'sensor5': 70,  // Датчик "Не все так просто..."
+            'sensor6': 85,  // Датчик "Це не потужність, а магія!"
+            'sensor7': 100  // Датчик "Якщо не цей - то який?"
+        };
+
+        const sensorDescriptions = {
+            'manual': 'Ручний режим, контроль за допомогою мемів!',
+            'sensor1': 'Ти що, не розумієш? Потужність в нуль!',
+            'sensor2': 'Могло б бути й краще... Але ще не зовсім погано.',
+            'sensor3': 'Чекаю на диво! Потужність все ще слабка.',
+            'sensor4': 'Знову ці меми... Але починає йти потужність.',
+            'sensor5': 'Не все так просто... Це вже щось.',
+            'sensor6': 'Це не потужність, а магія! Потужність у зростанні.',
+            'sensor7': 'Якщо не цей - то який? Це максимальна потужність!'
         };
 
         measureButton.addEventListener('click', () => {
             const selectedSensor = sensorSelect.value;
             const power = sensorData[selectedSensor];
 
-            // Оновлюємо значення потужності
             potentiometerValue.textContent = `Потужність: ${power} W`;
+            sensorDescription.textContent = sensorDescriptions[selectedSensor];
 
-            // Розраховуємо кут для стрілки на основі потужності
-            const angle = (power / 100) * 180 - 90; // Змінюємо кут на діапазон від -90 до 90 градусів
+            const angle = (power / 100) * 180 - 90; // Розраховуємо кут для стрілки
             needle.style.transform = `rotate(${angle}deg)`;
         });
     </script>
