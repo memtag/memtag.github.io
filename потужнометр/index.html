@@ -2,26 +2,35 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Мемний Потужнометр</title>
+  <title>Потужнометр України</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(to bottom, #0057b7, #ffd700);
+      color: #111;
+      font-family: 'Comic Sans MS', cursive;
       text-align: center;
-      background: #f8f8f8;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
     }
 
     h1 {
-      color: #e61919;
+      margin-top: 20px;
       font-size: 2.5em;
+      color: white;
+      text-shadow: 2px 2px 4px #000;
     }
 
-    #gauge {
-      width: 300px;
-      height: 150px;
-      margin: 20px auto;
+    #gaugeBox {
       position: relative;
+      width: 300px;
+      height: 160px;
+      margin: 30px auto;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
     }
 
     #needle {
@@ -32,140 +41,145 @@
       height: 140px;
       background: black;
       transform-origin: bottom center;
-      transform: rotate(0deg);
-      transition: transform 0.5s ease-out;
+      transform: rotate(-90deg);
+      transition: transform 0.3s ease-out;
     }
 
-    canvas {
-      width: 100%;
-      height: 100%;
-    }
-
-    #powerValue {
-      font-size: 1.8em;
+    #powerLabel {
+      font-size: 1.5em;
+      margin-top: 10px;
       font-weight: bold;
-      margin: 20px;
     }
 
     select, input, button {
       margin: 10px;
-      font-size: 1em;
       padding: 10px;
+      font-size: 1em;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      border: 2px solid #222;
     }
 
-    .label {
+    .section {
+      margin: 20px;
+    }
+
+    .ukraine {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #003399;
       font-weight: bold;
-      margin-top: 10px;
-      display: block;
+    }
+
+    .flag {
+      font-size: 2em;
     }
   </style>
 </head>
 <body>
-  <h1>Мемний Потужнометр</h1>
-  <div id="gauge">
-    <canvas id="gaugeCanvas" width="300" height="150"></canvas>
+  <h1>Потужнометр України</h1>
+
+  <div id="gaugeBox">
+    <canvas id="gauge" width="300" height="150"></canvas>
     <div id="needle"></div>
   </div>
-  <div id="powerValue">Потужність: 0 W</div>
 
-  <button onclick="measurePower()">Вимір потужності</button>
+  <div id="powerLabel">Потужність: 0%</div>
 
-  <label class="label">Вибір мемного датчика:</label>
-  <select id="sensorSelect">
-    <option value="manual">Датчик "Ти що, не розумієш?" (ручний)</option>
-    <option value="accel">Датчик "Під ногами земля горить" (акселерометр)</option>
-    <option value="mic">Датчик "Гучність зради" (мікрофон)</option>
-  </select>
-  <div id="manualInputDiv" style="display: block;">
-    <label class="label">Введи потужність вручну:</label>
-    <input type="range" id="manualInput" min="0" max="100" value="0" />
+  <div class="section">
+    <label for="sensor">Датчик:</label>
+    <select id="sensor">
+      <option value="manual">Датчик "Ти шо, не шариш?" (ручний)</option>
+      <option value="accel">Датчик "Земля тікає" (акселерометр)</option>
+      <option value="mic">Датчик "Гучність зради" (мікрофон)</option>
+    </select>
   </div>
 
-  <script>
-    const ctx = document.getElementById('gaugeCanvas').getContext('2d');
-    const needle = document.getElementById('needle');
-    const powerDisplay = document.getElementById('powerValue');
-    const sensorSelect = document.getElementById('sensorSelect');
-    const manualInputDiv = document.getElementById('manualInputDiv');
-    const manualInput = document.getElementById('manualInput');
+  <div class="section" id="manualBox">
+    <label>Ручне значення:</label>
+    <input type="range" id="manualValue" min="0" max="100" value="0">
+  </div>
 
-    const colors = [
-      { color: '#00cc00', label: 'Зрада' },
-      { color: '#ffff00', label: 'Потужність не виявлено' },
-      { color: '#ff9900', label: 'Потужно' },
-      { color: '#ff0000', label: 'Максимальна потужність' },
-      { color: '#800000', label: 'Потужнометр розʼїбало' },
+  <button onclick="readSensor()">Виміряти потужність</button>
+
+  <div class="ukraine">Слава Україні! <span class="flag">🇺🇦</span></div>
+
+  <script>
+    const ctx = document.getElementById("gauge").getContext("2d");
+    const needle = document.getElementById("needle");
+    const powerLabel = document.getElementById("powerLabel");
+    const sensorSelect = document.getElementById("sensor");
+    const manualBox = document.getElementById("manualBox");
+
+    const zones = [
+      { color: "#00cc00", label: "Зрада", from: 0, to: 20 },
+      { color: "#ffff00", label: "Потужність не виявлено", from: 20, to: 40 },
+      { color: "#ff9900", label: "Потужно", from: 40, to: 60 },
+      { color: "#ff0000", label: "Максимальна потужність", from: 60, to: 85 },
+      { color: "#800000", label: "Потужнометр розʼїбало", from: 85, to: 100 }
     ];
 
     function drawGauge() {
-      ctx.clearRect(0, 0, 300, 150);
-      let start = Math.PI, angle = Math.PI / colors.length;
-      colors.forEach((seg, i) => {
+      const centerX = 150;
+      const centerY = 150;
+      const radius = 140;
+      let start = Math.PI;
+
+      zones.forEach(zone => {
+        const startAngle = start + Math.PI * (zone.from / 100);
+        const endAngle = start + Math.PI * (zone.to / 100);
+
         ctx.beginPath();
-        ctx.moveTo(150, 150);
-        ctx.fillStyle = seg.color;
-        ctx.arc(150, 150, 150, start + i * angle, start + (i + 1) * angle);
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.fillStyle = zone.color;
         ctx.fill();
       });
     }
 
-    function updateNeedle(power) {
-      const deg = (power / 100) * 180 - 90;
-      needle.style.transform = `rotate(${deg}deg)`;
-      powerDisplay.textContent = `Потужність: ${Math.round(power)} W`;
+    function updatePower(value) {
+      const angle = -90 + (value / 100) * 180;
+      needle.style.transform = `rotate(${angle}deg)`;
+      powerLabel.innerText = `Потужність: ${Math.round(value)}%`;
     }
 
-    function measurePower() {
+    function readSensor() {
       const mode = sensorSelect.value;
-
-      if (mode === 'manual') {
-        const power = manualInput.value;
-        updateNeedle(power);
-      } else if (mode === 'accel') {
+      if (mode === "manual") {
+        const val = document.getElementById("manualValue").value;
+        updatePower(val);
+      } else if (mode === "accel") {
         if (window.DeviceMotionEvent) {
-          window.addEventListener('devicemotion', function (event) {
-            const acc = Math.sqrt(
-              event.acceleration.x ** 2 +
-              event.acceleration.y ** 2 +
-              event.acceleration.z ** 2
-            );
-            const power = Math.min(100, acc * 10);
-            updateNeedle(power);
+          window.addEventListener("devicemotion", function (event) {
+            const acc = event.accelerationIncludingGravity;
+            const total = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+            const power = Math.min(100, (total - 9.8) * 10);
+            updatePower(power);
           }, { once: true });
         } else {
-          alert("Акселерометр недоступний.");
+          alert("Акселерометр не підтримується.");
         }
-      } else if (mode === 'mic') {
+      } else if (mode === "mic") {
         navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
           const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           const source = audioCtx.createMediaStreamSource(stream);
           const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 256;
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
           source.connect(analyser);
-          const data = new Uint8Array(analyser.fftSize);
-          analyser.getByteTimeDomainData(data);
-
-          let sum = 0;
-          for (let i = 0; i < data.length; i++) {
-            const val = (data[i] - 128) / 128;
-            sum += val * val;
-          }
-          const rms = Math.sqrt(sum / data.length);
-          const power = Math.min(100, rms * 1000);
-          updateNeedle(power);
+          analyser.getByteFrequencyData(dataArray);
+          let avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
           stream.getTracks().forEach(t => t.stop());
-        }).catch(() => {
-          alert("Не вдалося отримати доступ до мікрофона.");
-        });
+          updatePower(Math.min(100, avg * 1.5));
+        }).catch(() => alert("Немає доступу до мікрофона."));
       }
     }
 
-    sensorSelect.addEventListener('change', () => {
-      manualInputDiv.style.display = sensorSelect.value === 'manual' ? 'block' : 'none';
+    sensorSelect.addEventListener("change", () => {
+      manualBox.style.display = sensorSelect.value === "manual" ? "block" : "none";
     });
 
     drawGauge();
+    updatePower(0);
   </script>
 </body>
 </html>
