@@ -1,228 +1,171 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мемний Потужнометр</title>
-    <style>
-        body {
-            font-family: 'Comic Sans MS', sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            flex-direction: column;
-            text-align: center;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Мемний Потужнометр</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-align: center;
+      background: #f8f8f8;
+      padding: 20px;
+    }
 
-        h1 {
-            color: #FF6347;
-            font-size: 36px;
-            margin-bottom: 20px;
-        }
+    h1 {
+      color: #e61919;
+      font-size: 2.5em;
+    }
 
-        .potentiometer-container {
-            position: relative;
-            width: 300px;
-            height: 150px;
-            margin-bottom: 20px;
-            transform: rotate(180deg);
-        }
+    #gauge {
+      width: 300px;
+      height: 150px;
+      margin: 20px auto;
+      position: relative;
+    }
 
-        .potentiometer {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            background: conic-gradient(
-                #00FF00 0% 20%,   /* зелений */
-                #FFFF00 20% 40%,  /* жовтий */
-                #FFA500 40% 60%,  /* помаранчевий */
-                #FF0000 60% 80%,  /* червоний */
-                #8B0000 80% 100%  /* темно червоний */
-            );
-            border-radius: 150px 150px 0 0;
-            border: 5px solid #000;
-        }
+    #needle {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      height: 140px;
+      background: black;
+      transform-origin: bottom center;
+      transform: rotate(0deg);
+      transition: transform 0.5s ease-out;
+    }
 
-        .needle {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            width: 6px;
-            height: 120px;
-            background-color: #000;
-            transform-origin: bottom;
-            transition: transform 0.2s ease;
-        }
+    canvas {
+      width: 100%;
+      height: 100%;
+    }
 
-        .value {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 20px;
-            color: #333;
-        }
+    #powerValue {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin: 20px;
+    }
 
-        .button-container {
-            margin-top: 20px;
-        }
+    select, input, button {
+      margin: 10px;
+      font-size: 1em;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
 
-        .button {
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .button:hover {
-            background-color: #45a049;
-        }
-
-        .settings {
-            margin-top: 30px;
-        }
-
-        .settings select {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        .sensor-label {
-            font-size: 18px;
-            margin: 10px 0;
-        }
-
-        .sensor-names {
-            font-size: 16px;
-            color: #555;
-            font-weight: bold;
-        }
-
-        .sensor-description {
-            font-size: 14px;
-            color: #777;
-        }
-
-        .scale-labels {
-            position: absolute;
-            width: 100%;
-            top: 0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #333;
-        }
-
-        .scale-labels div {
-            position: absolute;
-            bottom: 0;
-        }
-
-        .scale-labels .green {
-            left: 5%;
-        }
-
-        .scale-labels .yellow {
-            left: 20%;
-        }
-
-        .scale-labels .orange {
-            left: 40%;
-        }
-
-        .scale-labels .red {
-            left: 60%;
-        }
-
-        .scale-labels .dark-red {
-            left: 80%;
-        }
-    </style>
+    .label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <h1>Мемний Потужнометр</h1>
-    <div class="potentiometer-container">
-        <div class="potentiometer" id="potentiometer">
-            <div class="needle" id="needle"></div>
-        </div>
-        <div class="scale-labels">
-            <div class="green">Зрада</div>
-            <div class="yellow">Не виявлено</div>
-            <div class="orange">Потужно</div>
-            <div class="red">Макс. Потужність</div>
-            <div class="dark-red">Роз'їбало!</div>
-        </div>
-    </div>
-    <div class="value" id="potentiometerValue">Потужність: 0 W</div>
+  <h1>Мемний Потужнометр</h1>
+  <div id="gauge">
+    <canvas id="gaugeCanvas" width="300" height="150"></canvas>
+    <div id="needle"></div>
+  </div>
+  <div id="powerValue">Потужність: 0 W</div>
 
-    <div class="button-container">
-        <button class="button" id="measureButton">Вимір потужності</button>
-    </div>
+  <button onclick="measurePower()">Вимір потужності</button>
 
-    <div class="settings">
-        <div class="sensor-label">Вибір мемного датчика:</div>
-        <select id="sensorSelect">
-            <option value="manual">Вручну</option>
-            <option value="sensor1">Датчик "Ти що, не розумієш?"</option>
-            <option value="sensor2">Датчик "Могло б бути й краще!"</option>
-            <option value="sensor3">Датчик "Чекаю на диво!"</option>
-            <option value="sensor4">Датчик "Знову ці меми..."</option>
-            <option value="sensor5">Датчик "Не все так просто..."</option>
-            <option value="sensor6">Датчик "Це не потужність, а магія!"</option>
-            <option value="sensor7">Датчик "Якщо не цей - то який?"</option>
-        </select>
-    </div>
+  <label class="label">Вибір мемного датчика:</label>
+  <select id="sensorSelect">
+    <option value="manual">Датчик "Ти що, не розумієш?" (ручний)</option>
+    <option value="accel">Датчик "Під ногами земля горить" (акселерометр)</option>
+    <option value="mic">Датчик "Гучність зради" (мікрофон)</option>
+  </select>
+  <div id="manualInputDiv" style="display: block;">
+    <label class="label">Введи потужність вручну:</label>
+    <input type="range" id="manualInput" min="0" max="100" value="0" />
+  </div>
 
-    <div class="sensor-names" id="sensorNames">
-        <div class="sensor-description" id="sensorDescription"></div>
-    </div>
+  <script>
+    const ctx = document.getElementById('gaugeCanvas').getContext('2d');
+    const needle = document.getElementById('needle');
+    const powerDisplay = document.getElementById('powerValue');
+    const sensorSelect = document.getElementById('sensorSelect');
+    const manualInputDiv = document.getElementById('manualInputDiv');
+    const manualInput = document.getElementById('manualInput');
 
-    <script>
-        const measureButton = document.getElementById('measureButton');
-        const potentiometerValue = document.getElementById('potentiometerValue');
-        const needle = document.getElementById('needle');
-        const sensorSelect = document.getElementById('sensorSelect');
-        const sensorDescription = document.getElementById('sensorDescription');
+    const colors = [
+      { color: '#00cc00', label: 'Зрада' },
+      { color: '#ffff00', label: 'Потужність не виявлено' },
+      { color: '#ff9900', label: 'Потужно' },
+      { color: '#ff0000', label: 'Максимальна потужність' },
+      { color: '#800000', label: 'Потужнометр розʼїбало' },
+    ];
 
-        const sensorData = {
-            'manual': 0,
-            'sensor1': 10,  // Датчик "Ти що, не розумієш?"
-            'sensor2': 25,  // Датчик "Могло б бути й краще!"
-            'sensor3': 40,  // Датчик "Чекаю на диво!"
-            'sensor4': 55,  // Датчик "Знову ці меми..."
-            'sensor5': 70,  // Датчик "Не все так просто..."
-            'sensor6': 85,  // Датчик "Це не потужність, а магія!"
-            'sensor7': 100  // Датчик "Якщо не цей - то який?"
-        };
+    function drawGauge() {
+      ctx.clearRect(0, 0, 300, 150);
+      let start = Math.PI, angle = Math.PI / colors.length;
+      colors.forEach((seg, i) => {
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.fillStyle = seg.color;
+        ctx.arc(150, 150, 150, start + i * angle, start + (i + 1) * angle);
+        ctx.fill();
+      });
+    }
 
-        const sensorDescriptions = {
-            'manual': 'Ручний режим, контроль за допомогою мемів!',
-            'sensor1': 'Ти що, не розумієш? Потужність в нуль!',
-            'sensor2': 'Могло б бути й краще... Але ще не зовсім погано.',
-            'sensor3': 'Чекаю на диво! Потужність все ще слабка.',
-            'sensor4': 'Знову ці меми... Але починає йти потужність.',
-            'sensor5': 'Не все так просто... Це вже щось.',
-            'sensor6': 'Це не потужність, а магія! Потужність у зростанні.',
-            'sensor7': 'Якщо не цей - то який? Це максимальна потужність!'
-        };
+    function updateNeedle(power) {
+      const deg = (power / 100) * 180 - 90;
+      needle.style.transform = `rotate(${deg}deg)`;
+      powerDisplay.textContent = `Потужність: ${Math.round(power)} W`;
+    }
 
-        measureButton.addEventListener('click', () => {
-            const selectedSensor = sensorSelect.value;
-            const power = sensorData[selectedSensor];
+    function measurePower() {
+      const mode = sensorSelect.value;
 
-            potentiometerValue.textContent = `Потужність: ${power} W`;
-            sensorDescription.textContent = sensorDescriptions[selectedSensor];
+      if (mode === 'manual') {
+        const power = manualInput.value;
+        updateNeedle(power);
+      } else if (mode === 'accel') {
+        if (window.DeviceMotionEvent) {
+          window.addEventListener('devicemotion', function (event) {
+            const acc = Math.sqrt(
+              event.acceleration.x ** 2 +
+              event.acceleration.y ** 2 +
+              event.acceleration.z ** 2
+            );
+            const power = Math.min(100, acc * 10);
+            updateNeedle(power);
+          }, { once: true });
+        } else {
+          alert("Акселерометр недоступний.");
+        }
+      } else if (mode === 'mic') {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const source = audioCtx.createMediaStreamSource(stream);
+          const analyser = audioCtx.createAnalyser();
+          source.connect(analyser);
+          const data = new Uint8Array(analyser.fftSize);
+          analyser.getByteTimeDomainData(data);
 
-            const angle = (power / 100) * 180 - 90; // Розраховуємо кут для стрілки
-            needle.style.transform = `rotate(${angle}deg)`;
+          let sum = 0;
+          for (let i = 0; i < data.length; i++) {
+            const val = (data[i] - 128) / 128;
+            sum += val * val;
+          }
+          const rms = Math.sqrt(sum / data.length);
+          const power = Math.min(100, rms * 1000);
+          updateNeedle(power);
+          stream.getTracks().forEach(t => t.stop());
+        }).catch(() => {
+          alert("Не вдалося отримати доступ до мікрофона.");
         });
-    </script>
+      }
+    }
+
+    sensorSelect.addEventListener('change', () => {
+      manualInputDiv.style.display = sensorSelect.value === 'manual' ? 'block' : 'none';
+    });
+
+    drawGauge();
+  </script>
 </body>
 </html>
