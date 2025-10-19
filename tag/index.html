@@ -4,199 +4,119 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Web NFC — Read / Write (GitHub Pages)</title>
+  <title>NFC Web</title>
   <style>
-    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;}
-    body{max-width:820px;margin:28px auto;padding:20px;} 
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:28px auto;padding:20px;max-width:720px;}
     h1{font-size:1.4rem;margin-bottom:0.2rem}
-    p.lead{color:#444;margin-top:0}
-    .panel{border:1px solid #e2e8f0;padding:14px;border-radius:8px;margin:12px 0}
-    label{display:block;margin:8px 0 4px;font-weight:600}
-    input,select,textarea,button{width:100%;padding:8px;border-radius:6px;border:1px solid #cbd5e1}
-    button{cursor:pointer}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    pre{background:#0f172a;color:#e6eef8;padding:10px;border-radius:6px;overflow:auto}
-    .inline{width:auto;display:inline-block}
-    footer{color:#666;font-size:0.9rem;margin-top:18px}
+    button,input,select{padding:8px;margin:4px 0;border-radius:6px;border:1px solid #ccc;width:100%;cursor:pointer}
+    pre{background:#f4f4f4;padding:10px;border-radius:6px;overflow:auto}
+    .panel{border:1px solid #ccc;padding:14px;border-radius:8px;margin:12px 0}
+    label{font-weight:600}
   </style>
 </head>
 <body>
-  <h1>Web NFC — зчитування і запис (GitHub Pages)</h1>
-  <p class="lead">Простий статичний сайт для читання/запису NDEF-повідомлень через браузер (Web NFC API).</p>  <div class="panel">
-    <strong>Статус підтримки:</strong>
-    <div id="support">Перевірка...</div>
-  </div>  <div class="panel">
-    <h2>Зчитування</h2>
-    <p>Натисніть <strong>Start scanning</strong> і піднесіть NFC-мітку.</p>
-    <div class="row">
-      <button id="btn-scan">Start scanning</button>
-      <button id="btn-stop">Stop</button>
+  <h1>NFC Web</h1>
+  <div class="panel" id="status">Перевірка підтримки NFC...</div>
+  <div class="panel" id="tag-panel" style="display:none">
+    <pre id="tag-info">Дані з тегу...</pre>
+    <div class="panel">
+      <h2>Функції</h2>
+      <label for="write-text">Текст</label>
+      <input id="write-text" placeholder="Текст для запису"/>
+      <label for="write-url">Посилання</label>
+      <input id="write-url" placeholder="https://example.com"/>
+      <label for="write-sound">Звук</label>
+      <select id="write-sound"></select>
+      <button id="btn-write">Записати вибране</button>
+      <button id="btn-clear">Очистити тег</button>
+      <pre id="log">Лог дій...</pre>
     </div>
-    <label>Останні зчитування:</label>
-    <pre id="read-log">(поки нічого)</pre>
-  </div>  <div class="panel">
-    <h2>Запис</h2>
-    <label for="type">Тип запису</label>
-    <select id="type">
-      <option value="text">Text</option>
-      <option value="url">URL</option>
-      <option value="mime">MIME (raw)</option>
-    </select><label for="payload">Дані для запису</label>
-<textarea id="payload" rows="3" placeholder="Наприклад: Привіт світе або https://example.com"></textarea>
-
-<div style="display:flex;gap:8px;margin-top:8px">
-  <button id="btn-write" class="inline">Write to tag</button>
-  <button id="btn-clear" class="inline">Clear log</button>
-</div>
-
-<label>Лог запису:</label>
-<pre id="write-log">(поки нічого)</pre>
-
-  </div>  <div class="panel">
-    <h2>Поради</h2>
-    <ul>
-      <li>Web NFC працює лише в безпечному контексті (HTTPS або localhost).</li>
-      <li>Браузер покаже запит на дозвіл при першому доступі до NFC.</li>
-      <li>Підтримка зараз обмежена: Chrome / Chromium-браузери на Android найбільш надійні.</li>
-      <li>Теги повинні підтримувати NDEF.</li>
-    </ul>
-  </div>  <footer>
-    Розгорніть на GitHub Pages (репо -> Settings -> Pages) — сайт буде доступний по HTTPS, що потрібно для Web NFC.
-  </footer>  <script>
-    // UI elements
-    const supportEl = document.getElementById('support');
-    const btnScan = document.getElementById('btn-scan');
-    const btnStop = document.getElementById('btn-stop');
-    const readLog = document.getElementById('read-log');
-    const typeSel = document.getElementById('type');
-    const payloadEl = document.getElementById('payload');
+  </div>  <script>
+    const statusEl = document.getElementById('status');
+    const tagPanel = document.getElementById('tag-panel');
+    const tagInfo = document.getElementById('tag-info');
+    const logEl = document.getElementById('log');
+    const writeText = document.getElementById('write-text');
+    const writeUrl = document.getElementById('write-url');
+    const writeSound = document.getElementById('write-sound');
     const btnWrite = document.getElementById('btn-write');
-    const writeLog = document.getElementById('write-log');
     const btnClear = document.getElementById('btn-clear');
 
     let ndef = null;
-    let activeScan = false;
 
-    function logRead(text){
-      const ts = new Date().toLocaleString();
-      readLog.textContent = `${ts} — ${text}\n` + readLog.textContent;
-    }
-    function logWrite(text){
-      const ts = new Date().toLocaleString();
-      writeLog.textContent = `${ts} — ${text}\n` + writeLog.textContent;
+    function log(msg){
+      const ts = new Date().toLocaleTimeString();
+      logEl.textContent = ts + ' — ' + msg + '\n' + logEl.textContent;
     }
 
-    function checkSupport(){
-      if ('NDEFReader' in window){
-        supportEl.textContent = 'Ваш браузер, вірогідно, підтримує Web NFC (NDEFReader доступний). Проте потрібен пристрій з NFC та HTTPS.';
-        btnScan.disabled = false;
-        btnWrite.disabled = false;
-      } else {
-        supportEl.innerHTML = 'Web NFC не підтримується в цьому браузері. Спробуйте Chrome на Android або інший Chromium-браузер на Android.';
-        btnScan.disabled = true;
-        btnWrite.disabled = true;
-      }
-    }
-
-    checkSupport();
-
-    // SCAN
-    btnScan.addEventListener('click', async ()=>{
-      if (!('NDEFReader' in window)) return;
+    async function loadSounds(){
       try{
-        ndef = new NDEFReader();
-        await ndef.scan();
-        activeScan = true;
-        logRead('Сканування почалося — піднесіть мітку...');
-
-        ndef.addEventListener('readingerror', ()=>{
-          logRead('Помилка зчитування.');
-        });
-
-        ndef.addEventListener('reading', event => {
-          try{
-            const decoder = new TextDecoder();
-            let out = [];
-            const message = event.message;
-            for (const record of message.records){
-              let recText = `recordType=${record.recordType}`;
-              if (record.recordType === 'url'){
-                // URL records: read with record.data or decode
-                recText += `; URL=${decoder.decode(record.data)}`;
-              } else if (record.recordType === 'text'){
-                recText += `; text=${decoder.decode(record.data)}`;
-              } else if (record.mediaType){
-                recText += `; mediaType=${record.mediaType} dataLen=${record.data?.byteLength||0}`;
-              } else {
-                // fallback: dump as hex
-                const data = record.data ? new Uint8Array(record.data) : new Uint8Array([]);
-                recText += `; data=[${Array.from(data).slice(0,24).map(b=>b.toString(16).padStart(2,'0')).join(' ')}${data.length>24? ' ...':''}]`;
-              }
-              out.push(recText);
-            }
-            const full = `Tag serial: ${event.serialNumber || '(не вказано)'} | ${out.join(' | ')}`;
-            logRead(full);
-          }catch(e){
-            logRead('Помилка розбору запису: '+e);
+        const resp = await fetch('snd.txt');
+        const text = await resp.text();
+        const lines = text.split('\n');
+        lines.forEach(line=>{
+          const m = line.match(/name="([^"]+)"\s+page="([^"]+)"/);
+          if(m){
+            const opt = document.createElement('option');
+            opt.value = `https://memtag.github.io/${m[2]}/`;
+            opt.textContent = m[1];
+            writeSound.appendChild(opt);
           }
         });
-
-      }catch(err){
-        logRead('Не вдалось почати сканування: ' + err);
+      }catch(e){
+        log('Не вдалося завантажити snd.txt');
       }
-    });
+    }
 
-    btnStop.addEventListener('click', ()=>{
-      // API не дає stop() на всіх реалізаціях — можна просто відв'язати обробники
-      if (ndef && activeScan){
-        try{ ndef.onreading = null; }catch(e){}
-        try{ ndef.removeEventListener('reading'); }catch(e){}
-        activeScan = false;
-        logRead('Сканування зупинено (обробники відключені).');
-      } else {
-        logRead('Сканування не було активним.');
+    async function startScan(){
+      if(!('NDEFReader' in window)){
+        statusEl.textContent = 'Ваш браузер не підтримує NFC';
+        return;
       }
-    });
-
-    // WRITE
-    btnWrite.addEventListener('click', async ()=>{
-      if (!('NDEFReader' in window)) return;
-      const payload = payloadEl.value.trim();
-      if (!payload){ logWrite('Порожній payload.'); return; }
-      const type = typeSel.value;
-
+      ndef = new NDEFReader();
       try{
-        const writer = new NDEFReader();
-        // build message
-        if (type === 'text'){
-          await writer.write({records:[{recordType:'text', data:payload}]});
-          logWrite('Записано текст: ' + payload);
-        } else if (type === 'url'){
-          await writer.write({records:[{recordType:'url', data:payload}]});
-          logWrite('Записано URL: ' + payload);
-        } else if (type === 'mime'){
-          // записуємо як generic mime (text/plain)
-          await writer.write({records:[{recordType:'mime', mediaType:'text/plain', data:payload}]});
-          logWrite('Записано MIME text/plain: ' + payload);
-        } else {
-          logWrite('Невідомий тип.');
-        }
-      }catch(err){
-        logWrite('Помилка запису: ' + err);
+        await ndef.scan();
+        statusEl.textContent = 'Прикладіть мітку';
+        ndef.onreading = event => {
+          const serial = event.serialNumber || 'не відомо';
+          let recordData = [];
+          for(const record of event.message.records){
+            if(record.recordType==='text') recordData.push(record.data ? new TextDecoder().decode(record.data) : '');
+            if(record.recordType==='url') recordData.push(record.data ? new TextDecoder().decode(record.data) : '');
+          }
+          tagInfo.textContent = `Дані:\nТип: Mifare Classic\nUID:${serial}\nЗміст: ${recordData.join(', ')}`;
+          tagPanel.style.display='block';
+        };
+      }catch(e){
+        statusEl.textContent='Помилка при скануванні: '+e;
+      }
+    }
+
+    btnWrite.addEventListener('click', async ()=>{
+      if(!ndef) return;
+      const records = [];
+      if(writeText.value.trim()) records.push({recordType:'text', data:writeText.value.trim()});
+      if(writeUrl.value.trim()) records.push({recordType:'url', data:writeUrl.value.trim()});
+      if(writeSound.value) records.push({recordType:'url', data:writeSound.value});
+      try{
+        await ndef.write({records});
+        log('Записано успішно');
+      }catch(e){
+        log('Помилка запису: '+e);
       }
     });
 
-    btnClear.addEventListener('click', ()=>{
-      readLog.textContent='(поки нічого)';
-      writeLog.textContent='(поки нічого)';
-    });
-
-    // Helpful guide when page is hidden
-    document.addEventListener('visibilitychange', ()=>{
-      if (document.hidden){
-        // Some user agents require page to be visible to use NFC
-        if (activeScan) logRead('Сторінка стала невидимою — сканування може бути призупинено.');
+    btnClear.addEventListener('click', async ()=>{
+      if(!ndef) return;
+      try{
+        await ndef.write({records:[]});
+        log('Тег очищено');
+      }catch(e){
+        log('Помилка очищення: '+e);
       }
     });
+
+    loadSounds();
+    startScan();
   </script></body>
 </html>
