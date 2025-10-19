@@ -12,7 +12,7 @@
     pre{background:#f4f4f4;padding:10px;border-radius:6px;overflow:auto}
     .panel{border:1px solid #ccc;padding:14px;border-radius:8px;margin:12px 0}
     label{font-weight:600}
-    .subpanel{margin-left:12px;margin-top:6px;}
+    .subpanel{margin-left:12px;margin-top:6px;display:none;}
   </style>
 </head>
 <body>
@@ -22,17 +22,21 @@
     <pre id="tag-info">Дані з тегу...</pre>
     <div class="panel">
       <h2>Функції</h2>
-      <p>Запис:</p>
-      <ul>
-        <li>Текст</li>
-        <li>Посилання</li>
-        <li>Звук</li>
-      </ul>
-      <div class="subpanel">
+      <label for="record-type">Що записати:</label>
+      <select id="record-type">
+        <option value="text">Текст</option>
+        <option value="url">Посилання</option>
+        <option value="sound">Звук</option>
+      </select>
+      <div class="subpanel" id="text-panel">
         <label for="write-text">Текст</label>
         <input id="write-text" placeholder="Текст для запису"/>
+      </div>
+      <div class="subpanel" id="url-panel">
         <label for="write-url">Посилання</label>
         <input id="write-url" placeholder="https://example.com"/>
+      </div>
+      <div class="subpanel" id="sound-panel">
         <label for="write-sound">Звук</label>
         <select id="write-sound"></select>
       </div>
@@ -50,6 +54,10 @@
     const writeSound = document.getElementById('write-sound');
     const btnWrite = document.getElementById('btn-write');
     const btnClear = document.getElementById('btn-clear');
+    const recordTypeSel = document.getElementById('record-type');
+    const textPanel = document.getElementById('text-panel');
+    const urlPanel = document.getElementById('url-panel');
+    const soundPanel = document.getElementById('sound-panel');
 
     let ndef = null;
 
@@ -57,6 +65,17 @@
       const ts = new Date().toLocaleTimeString();
       logEl.textContent = ts + ' — ' + msg + '\n' + logEl.textContent;
     }
+
+    function showSubPanel(){
+      textPanel.style.display='none';
+      urlPanel.style.display='none';
+      soundPanel.style.display='none';
+      if(recordTypeSel.value==='text') textPanel.style.display='block';
+      else if(recordTypeSel.value==='url') urlPanel.style.display='block';
+      else if(recordTypeSel.value==='sound') soundPanel.style.display='block';
+    }
+
+    recordTypeSel.addEventListener('change', showSubPanel);
 
     async function loadSounds(){
       try{
@@ -88,27 +107,27 @@
         statusEl.textContent = 'Прикладіть мітку';
         ndef.onreading = event => {
           const serial = event.serialNumber || 'не відомо';
-          let type = 'Невідомий';
           let contentArr = [];
           for(const record of event.message.records){
-            if(record.recordType==='text') contentArr.push(new TextDecoder().decode(record.data));
-            else if(record.recordType==='url') contentArr.push(new TextDecoder().decode(record.data));
-            else contentArr.push('');
-          }
-          if(event.message.records.length===0) contentArr.push('');
-
-          // Визначення типу (за recordType)
-          const types = event.message.records.map(r=>r.recordType);
-          if(types.length===0) type='Невідомий';
-          else if(types.length===1){
-            if(types[0]==='text') type='Text';
-            else if(types[0]==='url') type='URL';
-            else type='Інший';
-          } else {
-            type='Змішаний';
+            try{
+              if(record.recordType==='text') contentArr.push(new TextDecoder().decode(record.data));
+              else if(record.recordType==='url') contentArr.push(new TextDecoder().decode(record.data));
+              else {
+                // якщо не зрозумілий recordType — спробуємо декодувати будь-які дані
+                try{ contentArr.push(new TextDecoder().decode(record.data || new Uint8Array([]))); }catch(e){ contentArr.push(''); }
+              }
+            }catch(e){
+              contentArr.push('');
+            }
           }
 
-          tagInfo.textContent = `Дані:\nТип: ${type}\nUID: ${serial}\nЗміст: ${contentArr.join(', ')}`;
+          let contentStr;
+          if(contentArr.length===0 || contentArr.every(c=>c==='')) contentStr='Порожнє';
+          else if(contentArr.every(c=>/^https?:\/\//.test(c))) contentStr='URL';
+          else if(contentArr.every(c=>c!=='' && !/^https?:\/\//.test(c))) contentStr='Text';
+          else contentStr='Змішане';
+
+          tagInfo.textContent = `Дані:\nUID: ${serial}\nЗміст: ${contentStr}`;
           tagPanel.style.display='block';
         };
       }catch(e){
@@ -118,10 +137,13 @@
 
     btnWrite.addEventListener('click', async ()=>{
       if(!ndef) return;
-      const records = [];
-      if(writeText.value.trim()) records.push({recordType:'text', data:writeText.value.trim()});
-      if(writeUrl.value.trim()) records.push({recordType:'url', data:writeUrl.value.trim()});
-      if(writeSound.value) records.push({recordType:'url', data:writeSound.value});
+      const type = recordTypeSel.value;
+      let records = [];
+      if(type==='text' && writeText.value.trim()) records.push({recordType:'text', data:writeText.value.trim()});
+      else if(type==='url' && writeUrl.value.trim()) records.push({recordType:'url', data:writeUrl.value.trim()});
+      else if(type==='sound' && writeSound.value) records.push({recordType:'url', data:writeSound.value});
+      else {log('Немає даних для запису'); return;}
+
       try{
         await ndef.write({records});
         log('Записано успішно');
@@ -141,6 +163,7 @@
     });
 
     loadSounds();
+    showSubPanel();
     startScan();
   </script></body>
 </html>
