@@ -1,44 +1,80 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Таймер-звук</title>
+<title>Timer Sound</title>
 <style>
   body {
-    font-family: sans-serif;
-    background: #111;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(145deg, #0e0e0e, #1b1b1b);
     color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    padding: 2rem;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 1.2rem;
+    text-align: center;
+  }
+  h2 {
+    font-size: 1.7rem;
+    color: #00aaff;
+    text-shadow: 0 0 5px #0077ff88;
   }
   select, input, button {
     font-size: 1rem;
-    padding: 0.4rem 0.6rem;
-    border-radius: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.6rem;
     border: none;
-  }
-  select, input {
+    outline: none;
     background: #222;
     color: #fff;
+    transition: 0.2s;
+  }
+  select:focus, input:focus {
+    box-shadow: 0 0 5px #00aaff;
   }
   button {
-    background: #008cff;
+    background: #00aaff;
     color: white;
     cursor: pointer;
+    padding: 0.7rem 1.4rem;
+    border-radius: 0.8rem;
+    font-weight: bold;
+  }
+  button:hover {
+    background: #0095dd;
   }
   .time-controls {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    justify-content: center;
   }
   .lang-select {
     position: absolute;
     top: 1rem;
     right: 1rem;
+  }
+  .links {
+    position: absolute;
+    bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+  .links a {
+    color: white;
+    background: #333;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.7rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
+  }
+  .links a:hover {
+    background: #00aaff;
   }
 </style>
 </head>
@@ -46,21 +82,21 @@
 
 <div class="lang-select">
   <select id="lang">
-    <option value="uk">🇺🇦 Українська</option>
     <option value="en">🇬🇧 English</option>
+    <option value="uk">🇺🇦 Українська</option>
     <option value="ru">🇷🇺 Русский</option>
   </select>
 </div>
 
-<h2 id="title">Створити таймер-звук</h2>
+<h2 id="title">Create timer-sound</h2>
 
-<label id="sound-label" for="sound">Оберіть звук:</label>
+<label id="sound-label" for="sound">Choose sound:</label>
 <select id="sound"></select>
 
-<label id="time-label" for="time">Оберіть час:</label>
+<label id="time-label" for="time">Choose time:</label>
 <div class="time-controls">
-  <input type="range" id="slider" min="1" max="3600" value="60">
-  <input type="number" id="timeValue" value="60" min="1">
+  <input type="range" id="slider" min="1" max="59" value="10">
+  <input type="number" id="timeValue" value="10" min="1" max="59">
   <select id="unit">
     <option value="s">s</option>
     <option value="m">m</option>
@@ -68,26 +104,31 @@
   </select>
 </div>
 
-<p id="orText">або введіть точний час:</p>
+<p id="orText">or enter exact time:</p>
 <input type="time" id="exactTime" step="1">
 
-<button id="createBtn">Створити</button>
+<button id="createBtn">Create</button>
+
+<div class="links">
+  <a href="https://www.tiktok.com/@mem.tag" target="_blank">TikTok</a>
+  <a href="https://t.me/mem_soundtag" target="_blank">Telegram</a>
+</div>
 
 <script>
 const langData = {
-  uk: {
-    title: "Створити таймер-звук",
-    sound: "Оберіть звук:",
-    time: "Оберіть час:",
-    or: "або введіть точний час:",
-    create: "Створити"
-  },
   en: {
     title: "Create timer-sound",
     sound: "Choose sound:",
     time: "Choose time:",
     or: "or enter exact time:",
     create: "Create"
+  },
+  uk: {
+    title: "Створити таймер-звук",
+    sound: "Оберіть звук:",
+    time: "Оберіть час:",
+    or: "або введіть точний час:",
+    create: "Створити"
   },
   ru: {
     title: "Создать таймер-звук",
@@ -98,14 +139,23 @@ const langData = {
   }
 };
 
-document.getElementById("lang").addEventListener("change", e => {
-  const l = langData[e.target.value];
+// авто-вибір мови
+const userLang = navigator.language.startsWith('uk') ? 'uk' :
+                 navigator.language.startsWith('ru') ? 'ru' : 'en';
+const langSelect = document.getElementById("lang");
+langSelect.value = userLang;
+applyLang(userLang);
+
+langSelect.addEventListener("change", e => applyLang(e.target.value));
+
+function applyLang(code) {
+  const l = langData[code];
   document.getElementById("title").textContent = l.title;
   document.getElementById("sound-label").textContent = l.sound;
   document.getElementById("time-label").textContent = l.time;
   document.getElementById("orText").textContent = l.or;
   document.getElementById("createBtn").textContent = l.create;
-});
+}
 
 // підвантаження snd.txt
 async function loadSounds() {
@@ -125,7 +175,7 @@ async function loadSounds() {
       }
     }
   } catch {
-    alert("Не вдалося завантажити snd.txt");
+    alert("Could not load snd.txt");
   }
 }
 loadSounds();
@@ -137,8 +187,8 @@ const unit = document.getElementById("unit");
 slider.addEventListener("input", () => {
   timeValue.value = slider.value;
 });
-
 timeValue.addEventListener("input", () => {
+  if (timeValue.value > 59) timeValue.value = 59;
   slider.value = timeValue.value;
 });
 
@@ -156,11 +206,11 @@ document.getElementById("createBtn").addEventListener("click", () => {
   }
 
   if (!soundPage || !t) {
-    alert("Оберіть звук і час!");
+    alert("Please select sound and time!");
     return;
   }
 
-  const url = `https://memtag.github.io/${soundPage}/?t=${encodeURIComponent(t)}`;
+  const url = `https://memtag.github.io/${soundPage}/t?t=${encodeURIComponent(t)}`;
   window.location.href = url;
 });
 </script>
