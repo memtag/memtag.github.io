@@ -6,10 +6,12 @@ html,body{margin:0;background:#000;height:100%;overflow:hidden;cursor:pointer}
 </style>
 </head>
 <body>
+<audio id="silent" src="../sound.mp3" loop volume="0"></audio>
 <audio id="s" src="../sound.mp3" loop></audio>
 <script>
 const u=new URL(location.href),t=u.searchParams.get('t');
 const a=document.getElementById('s');
+const silent=document.getElementById('silent');
 let ctx,src,gain,eq;
 function initAudio(){
   ctx=new (window.AudioContext||window.webkitAudioContext)();
@@ -40,8 +42,13 @@ function start(){
   document.body.removeEventListener('click', start);
   initAudio();
   ctx.resume().then(()=>{
+    silent.play();
     const delay=getDelay(t);
-    setTimeout(()=>a.play(), delay);
+    setTimeout(()=>{
+      silent.pause();
+      silent.currentTime=0;
+      a.play();
+    }, delay);
   });
 }
 document.body.addEventListener('click', start);
