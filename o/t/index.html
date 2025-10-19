@@ -10,22 +10,39 @@ html,body{margin:0;background:#000;height:100%;overflow:hidden;cursor:pointer}
 <script>
 const u=new URL(location.href),t=u.searchParams.get('t');
 const a=document.getElementById('s');
-const ctx=new (window.AudioContext||window.webkitAudioContext)();
-const src=ctx.createMediaElementSource(a);
-const gain=ctx.createGain();
-gain.gain.value=4;
-const eq=[
-{f:60,g:3},{f:170,g:2},{f:350,g:1},{f:1000,g:1},{f:3500,g:2},{f:10000,g:3}
-].map(b=>{const f=ctx.createBiquadFilter();f.type='peaking';f.frequency.value=b.f;f.gain.value=b.g;return f});
-src.connect(eq[0]);for(let i=0;i<eq.length-1;i++)eq[i].connect(eq[i+1]);eq.at(-1).connect(gain).connect(ctx.destination);
-function p(s){return s.replace(/s$/,'')*1000}
-function c(t){const now=new Date();const parts=t.split(':').map(Number);const d=new Date();d.setHours(parts[0],parts[1]||0,parts[2]||0,0);if(d<now)d.setDate(d.getDate()+1);return d-now}
+let ctx,src,gain,eq;
+function initAudio(){
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  src=ctx.createMediaElementSource(a);
+  gain=ctx.createGain();
+  gain.gain.value=4;
+  eq=[
+    {f:60,g:3},{f:170,g:2},{f:350,g:1},{f:1000,g:1},{f:3500,g:2},{f:10000,g:3}
+  ].map(b=>{const f=ctx.createBiquadFilter();f.type='peaking';f.frequency.value=b.f;f.gain.value=b.g;return f});
+  src.connect(eq[0]);
+  for(let i=0;i<eq.length-1;i++) eq[i].connect(eq[i+1]);
+  eq.at(-1).connect(gain).connect(ctx.destination);
+}
+function getDelay(timeStr){
+  if(/\d+:\d+(:\d+)?/.test(timeStr)){
+    const now=new Date();
+    let parts=timeStr.split(':').map(Number);
+    const target=new Date();
+    target.setHours(parts[0], parts[1]||0, parts[2]||0, 0);
+    if(target<=now) target.setDate(target.getDate()+1);
+    return target-now;
+  } else if(/\d+s?/.test(timeStr)){
+    return parseInt(timeStr.replace(/s$/,''))*1000;
+  }
+  return 0;
+}
 function start(){
-  let delay=0;
-  if(/\d+:\d+(:\d+)?/.test(t)) delay=c(t);
-  else if(/\d+s?/.test(t)) delay=p(t);
-  setTimeout(()=>{ctx.resume();a.play();}, delay);
   document.body.removeEventListener('click', start);
+  initAudio();
+  ctx.resume().then(()=>{
+    const delay=getDelay(t);
+    setTimeout(()=>a.play(), delay);
+  });
 }
 document.body.addEventListener('click', start);
 </script>
