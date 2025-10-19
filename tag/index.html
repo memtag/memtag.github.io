@@ -6,46 +6,55 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NFC Web</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:28px auto;padding:20px;max-width:720px;}
-    h1{font-size:1.4rem;margin-bottom:0.2rem}
-    button,input,select{padding:8px;margin:4px 0;border-radius:6px;border:1px solid #ccc;width:100%;cursor:pointer}
-    pre{background:#f4f4f4;padding:10px;border-radius:6px;overflow:auto}
-    .panel{border:1px solid #ccc;padding:14px;border-radius:8px;margin:12px 0}
-    label{font-weight:600}
-    .subpanel{margin-left:12px;margin-top:6px;display:none;}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:0;padding:0;text-align:center;background:#f9f9f9}
+    h1{font-size:2rem;margin:0.5em 0}
+    pre{background:#f4f4f4;padding:10px;border-radius:6px;overflow:auto;display:inline-block;text-align:left;max-width:90%;}
+    button,input,select{padding:8px;margin:4px 0;border-radius:6px;border:1px solid #ccc;width:200px;cursor:pointer}
+    .panel{padding:14px;margin:12px auto;border-radius:8px;width:90%;max-width:720px;background:#fff;}
+    .subpanel{margin-top:10px;display:none;}
+    #splash{position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;}
+    #splash img{width:150px;height:150px;margin-bottom:20px;}
+    footer{margin:20px 0;font-size:0.9rem;color:#555}
   </style>
 </head>
 <body>
-  <h1>NFC Web</h1>
-  <div class="panel" id="status">Перевірка підтримки NFC...</div>
-  <div class="panel" id="tag-panel" style="display:none">
+  <div id="splash">
+    <img src="nfc.jpg" alt="NFC">
+    <h1 id="splash-text">ПРИКЛАДІТЬ МІТКУ</h1>
+  </div>  <div class="panel" id="tag-panel" style="display:none">
     <pre id="tag-info">Дані з тегу...</pre>
     <div class="panel">
-      <h2>Функції</h2>
-      <label for="record-type">Що записати:</label>
-      <select id="record-type">
-        <option value="text">Текст</option>
-        <option value="url">Посилання</option>
-        <option value="sound">Звук</option>
-      </select>
-      <div class="subpanel" id="text-panel">
-        <label for="write-text">Текст</label>
-        <input id="write-text" placeholder="Текст для запису"/>
-      </div>
-      <div class="subpanel" id="url-panel">
-        <label for="write-url">Посилання</label>
-        <input id="write-url" placeholder="https://example.com"/>
-      </div>
-      <div class="subpanel" id="sound-panel">
-        <label for="write-sound">Звук</label>
-        <select id="write-sound"></select>
-      </div>
-      <button id="btn-write">Записати вибране</button>
-      <button id="btn-clear">Очистити тег</button>
-      <pre id="log">Лог дій...</pre>
-    </div>
-  </div>  <script>
-    const statusEl = document.getElementById('status');
+      <label for="lang-select">Мова:</label>
+      <select id="lang-select">
+        <option value="auto">Авто</option>
+        <option value="ua">UA</option>
+        <option value="en">EN</option>
+        <option value="ru">RU</option>
+      </select><label for="record-type">Що записати:</label>
+  <select id="record-type">
+    <option value="text">Текст</option>
+    <option value="url">Посилання</option>
+    <option value="sound">Звук</option>
+  </select>
+  <div class="subpanel" id="text-panel">
+    <input id="write-text" placeholder="Текст для запису"/>
+  </div>
+  <div class="subpanel" id="url-panel">
+    <input id="write-url" placeholder="https://example.com"/>
+  </div>
+  <div class="subpanel" id="sound-panel">
+    <select id="write-sound"></select>
+  </div>
+  <button id="btn-write">Записати вибране</button>
+  <button id="btn-clear">Очистити тег</button>
+  <pre id="log">Лог дій...</pre>
+</div>
+
+  </div>  <footer>
+    TikTok (сторінка @mem.tag) | Telegram (t.me/mem_soundtag)
+  </footer>  <script>
+    const splash = document.getElementById('splash');
+    const splashText = document.getElementById('splash-text');
     const tagPanel = document.getElementById('tag-panel');
     const tagInfo = document.getElementById('tag-info');
     const logEl = document.getElementById('log');
@@ -58,8 +67,16 @@
     const textPanel = document.getElementById('text-panel');
     const urlPanel = document.getElementById('url-panel');
     const soundPanel = document.getElementById('sound-panel');
+    const langSelect = document.getElementById('lang-select');
 
     let ndef = null;
+
+    function getBrowserLang(){
+      const lang = navigator.language.slice(0,2);
+      if(['ua','uk'].includes(lang)) return 'ua';
+      if(['ru'].includes(lang)) return 'ru';
+      return 'en';
+    }
 
     function log(msg){
       const ts = new Date().toLocaleTimeString();
@@ -98,24 +115,21 @@
 
     async function startScan(){
       if(!('NDEFReader' in window)){
-        statusEl.textContent = 'Ваш браузер не підтримує NFC';
+        splashText.textContent='Ваш браузер не підтримує NFC';
         return;
       }
       ndef = new NDEFReader();
       try{
         await ndef.scan();
-        statusEl.textContent = 'Прикладіть мітку';
+        splashText.textContent='ПРИКЛАДІТЬ МІТКУ';
         ndef.onreading = event => {
-          const serial = event.serialNumber || 'не відомо';
+          const serial = event.serialNumber || '00 00 00 00';
           let contentArr = [];
           for(const record of event.message.records){
             try{
               if(record.recordType==='text') contentArr.push(new TextDecoder().decode(record.data));
               else if(record.recordType==='url') contentArr.push(new TextDecoder().decode(record.data));
-              else {
-                // якщо не зрозумілий recordType — спробуємо декодувати будь-які дані
-                try{ contentArr.push(new TextDecoder().decode(record.data || new Uint8Array([]))); }catch(e){ contentArr.push(''); }
-              }
+              else contentArr.push('');
             }catch(e){
               contentArr.push('');
             }
@@ -127,23 +141,25 @@
           else if(contentArr.every(c=>c!=='' && !/^https?:\/\//.test(c))) contentStr='Text';
           else contentStr='Змішане';
 
-          tagInfo.textContent = `Дані:\nUID: ${serial}\nЗміст: ${contentStr}`;
+          splash.style.display='none';
           tagPanel.style.display='block';
+          tagInfo.textContent = `UID: ${serial}\nТип: ${contentStr}\nЗміст: ${contentStr==='Змішане' ? 'невідомий' : contentArr.join(', ')}`;
         };
       }catch(e){
-        statusEl.textContent='Помилка при скануванні: '+e;
+        splashText.textContent='Помилка при скануванні: '+e;
       }
     }
 
     btnWrite.addEventListener('click', async ()=>{
       if(!ndef) return;
+      splash.style.display='flex';
+      splashText.textContent='Очікую Мітку';
       const type = recordTypeSel.value;
       let records = [];
       if(type==='text' && writeText.value.trim()) records.push({recordType:'text', data:writeText.value.trim()});
       else if(type==='url' && writeUrl.value.trim()) records.push({recordType:'url', data:writeUrl.value.trim()});
       else if(type==='sound' && writeSound.value) records.push({recordType:'url', data:writeSound.value});
       else {log('Немає даних для запису'); return;}
-
       try{
         await ndef.write({records});
         log('Записано успішно');
@@ -154,6 +170,8 @@
 
     btnClear.addEventListener('click', async ()=>{
       if(!ndef) return;
+      splash.style.display='flex';
+      splashText.textContent='Очікую Мітку';
       try{
         await ndef.write({records:[]});
         log('Тег очищено');
@@ -164,6 +182,13 @@
 
     loadSounds();
     showSubPanel();
+
+    // Мова авто
+    if(langSelect.value==='auto'){
+      const autoLang = getBrowserLang();
+      langSelect.value = autoLang;
+    }
+
     startScan();
   </script></body>
 </html>
