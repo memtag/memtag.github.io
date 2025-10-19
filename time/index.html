@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Таймер-звук</title>
+<style>
+  body {
+    font-family: sans-serif;
+    background: #111;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+  }
+  select, input, button {
+    font-size: 1rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.5rem;
+    border: none;
+  }
+  select, input {
+    background: #222;
+    color: #fff;
+  }
+  button {
+    background: #008cff;
+    color: white;
+    cursor: pointer;
+  }
+  .time-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .lang-select {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="lang-select">
+  <select id="lang">
+    <option value="uk">🇺🇦 Українська</option>
+    <option value="en">🇬🇧 English</option>
+    <option value="ru">🇷🇺 Русский</option>
+  </select>
+</div>
+
+<h2 id="title">Створити таймер-звук</h2>
+
+<label id="sound-label" for="sound">Оберіть звук:</label>
+<select id="sound"></select>
+
+<label id="time-label" for="time">Оберіть час:</label>
+<div class="time-controls">
+  <input type="range" id="slider" min="1" max="3600" value="60">
+  <input type="number" id="timeValue" value="60" min="1">
+  <select id="unit">
+    <option value="s">s</option>
+    <option value="m">m</option>
+    <option value="h">h</option>
+  </select>
+</div>
+
+<p id="orText">або введіть точний час:</p>
+<input type="time" id="exactTime" step="1">
+
+<button id="createBtn">Створити</button>
+
+<script>
+const langData = {
+  uk: {
+    title: "Створити таймер-звук",
+    sound: "Оберіть звук:",
+    time: "Оберіть час:",
+    or: "або введіть точний час:",
+    create: "Створити"
+  },
+  en: {
+    title: "Create timer-sound",
+    sound: "Choose sound:",
+    time: "Choose time:",
+    or: "or enter exact time:",
+    create: "Create"
+  },
+  ru: {
+    title: "Создать таймер-звук",
+    sound: "Выберите звук:",
+    time: "Выберите время:",
+    or: "или введите точное время:",
+    create: "Создать"
+  }
+};
+
+document.getElementById("lang").addEventListener("change", e => {
+  const l = langData[e.target.value];
+  document.getElementById("title").textContent = l.title;
+  document.getElementById("sound-label").textContent = l.sound;
+  document.getElementById("time-label").textContent = l.time;
+  document.getElementById("orText").textContent = l.or;
+  document.getElementById("createBtn").textContent = l.create;
+});
+
+// підвантаження snd.txt
+async function loadSounds() {
+  try {
+    const res = await fetch("snd.txt");
+    const text = await res.text();
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    const select = document.getElementById("sound");
+    for (let line of lines) {
+      const name = line.match(/name="(.*?)"/)?.[1];
+      const page = line.match(/page="(.*?)"/)?.[1];
+      if (name && page) {
+        const opt = document.createElement("option");
+        opt.textContent = name;
+        opt.value = page;
+        select.appendChild(opt);
+      }
+    }
+  } catch {
+    alert("Не вдалося завантажити snd.txt");
+  }
+}
+loadSounds();
+
+const slider = document.getElementById("slider");
+const timeValue = document.getElementById("timeValue");
+const unit = document.getElementById("unit");
+
+slider.addEventListener("input", () => {
+  timeValue.value = slider.value;
+});
+
+timeValue.addEventListener("input", () => {
+  slider.value = timeValue.value;
+});
+
+document.getElementById("createBtn").addEventListener("click", () => {
+  const soundPage = document.getElementById("sound").value;
+  const exact = document.getElementById("exactTime").value;
+  let t = "";
+
+  if (exact) {
+    t = exact;
+  } else {
+    const val = Number(timeValue.value);
+    const u = unit.value;
+    t = val + u;
+  }
+
+  if (!soundPage || !t) {
+    alert("Оберіть звук і час!");
+    return;
+  }
+
+  const url = `https://memtag.github.io/${soundPage}/?t=${encodeURIComponent(t)}`;
+  window.location.href = url;
+});
+</script>
+</body>
+</html>
