@@ -12,6 +12,7 @@
     pre{background:#f4f4f4;padding:10px;border-radius:6px;overflow:auto}
     .panel{border:1px solid #ccc;padding:14px;border-radius:8px;margin:12px 0}
     label{font-weight:600}
+    .subpanel{margin-left:12px;margin-top:6px;}
   </style>
 </head>
 <body>
@@ -21,12 +22,20 @@
     <pre id="tag-info">Дані з тегу...</pre>
     <div class="panel">
       <h2>Функції</h2>
-      <label for="write-text">Текст</label>
-      <input id="write-text" placeholder="Текст для запису"/>
-      <label for="write-url">Посилання</label>
-      <input id="write-url" placeholder="https://example.com"/>
-      <label for="write-sound">Звук</label>
-      <select id="write-sound"></select>
+      <p>Запис:</p>
+      <ul>
+        <li>Текст</li>
+        <li>Посилання</li>
+        <li>Звук</li>
+      </ul>
+      <div class="subpanel">
+        <label for="write-text">Текст</label>
+        <input id="write-text" placeholder="Текст для запису"/>
+        <label for="write-url">Посилання</label>
+        <input id="write-url" placeholder="https://example.com"/>
+        <label for="write-sound">Звук</label>
+        <select id="write-sound"></select>
+      </div>
       <button id="btn-write">Записати вибране</button>
       <button id="btn-clear">Очистити тег</button>
       <pre id="log">Лог дій...</pre>
@@ -79,12 +88,27 @@
         statusEl.textContent = 'Прикладіть мітку';
         ndef.onreading = event => {
           const serial = event.serialNumber || 'не відомо';
-          let recordData = [];
+          let type = 'Невідомий';
+          let contentArr = [];
           for(const record of event.message.records){
-            if(record.recordType==='text') recordData.push(record.data ? new TextDecoder().decode(record.data) : '');
-            if(record.recordType==='url') recordData.push(record.data ? new TextDecoder().decode(record.data) : '');
+            if(record.recordType==='text') contentArr.push(new TextDecoder().decode(record.data));
+            else if(record.recordType==='url') contentArr.push(new TextDecoder().decode(record.data));
+            else contentArr.push('');
           }
-          tagInfo.textContent = `Дані:\nТип: Mifare Classic\nUID:${serial}\nЗміст: ${recordData.join(', ')}`;
+          if(event.message.records.length===0) contentArr.push('');
+
+          // Визначення типу (за recordType)
+          const types = event.message.records.map(r=>r.recordType);
+          if(types.length===0) type='Невідомий';
+          else if(types.length===1){
+            if(types[0]==='text') type='Text';
+            else if(types[0]==='url') type='URL';
+            else type='Інший';
+          } else {
+            type='Змішаний';
+          }
+
+          tagInfo.textContent = `Дані:\nТип: ${type}\nUID: ${serial}\nЗміст: ${contentArr.join(', ')}`;
           tagPanel.style.display='block';
         };
       }catch(e){
