@@ -10,10 +10,18 @@ html,body{margin:0;background:#000;height:100%;overflow:hidden}
 <script>
 const u=new URL(location.href),t=u.searchParams.get('t');
 const a=document.getElementById('s');
+const ctx=new (window.AudioContext||window.webkitAudioContext)();
+const src=ctx.createMediaElementSource(a);
+const gain=ctx.createGain();
+gain.gain.value=4;
+const eq=[
+{f:60,g:3},{f:170,g:2},{f:350,g:1},{f:1000,g:1},{f:3500,g:2},{f:10000,g:3}
+].map(b=>{const f=ctx.createBiquadFilter();f.type='peaking';f.frequency.value=b.f;f.gain.value=b.g;return f});
+src.connect(eq[0]);for(let i=0;i<eq.length-1;i++)eq[i].connect(eq[i+1]);eq.at(-1).connect(gain).connect(ctx.destination);
 function p(s){return s.replace(/s$/,'')*1000}
-function c(t){const n=new Date(),[h,m]=t.split(':').map(Number),d=new Date();d.setHours(h,m,0,0);if(d<n)d.setDate(d.getDate()+1);return d-n}
-let d=0;if(/\d+:\d+/.test(t))d=c(t);else if(/\d+s?/.test(t))d=p(t);
-setTimeout(()=>a.play(),d);
+function c(t){const n=new Date(),[h,m,s]=t.split(':').map(Number),d=new Date();d.setHours(h,m||0,s||0,0);if(d<n)d.setDate(d.getDate()+1);return d-n}
+let d=0;if(/\d+:\d+(:\d+)?/.test(t))d=c(t);else if(/\d+s?/.test(t))d=p(t);
+setTimeout(()=>{ctx.resume();a.play();},d);
 </script>
 </body>
 </html>
