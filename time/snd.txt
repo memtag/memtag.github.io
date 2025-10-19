@@ -1,3 +1,7 @@
 name="Oudap" page="o"
 name="Ston" page="n"
-name="Dimoon" page="d"
+name="DIMOOON" page="m"
+name="Pozharnaya Trivoga" page="p"
+name="OUDAP" page="n"
+name="DING-DONG" page="d"
+name="Sret i stonet" page="st"
