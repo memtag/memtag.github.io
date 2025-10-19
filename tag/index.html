@@ -6,57 +6,50 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NFC Web</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:0;padding:0;background:#f2f2f2;display:flex;flex-direction:column;min-height:100vh;}
-    header{padding:20px;text-align:center;background:#4a90e2;color:white;}
-    header h1{margin:0;font-size:2rem;}
-    #splash{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:0;padding:0;background:#121212;color:#e0e0e0;display:flex;flex-direction:column;min-height:100vh;}
+    #splash{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1e1e1e;}
     #splash img{width:150px;height:150px;margin-bottom:20px;}
-    #splash h1{font-size:1.8rem;margin:0;}
-    .panel{background:#fff;padding:20px;margin:20px auto;border-radius:10px;max-width:720px;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
-    pre{background:#f4f4f4;padding:10px;border-radius:6px;overflow:auto;max-width:100%;}
+    #splash h1{font-size:1.8rem;margin:0;color:#fff;}
+    .panel{background:#1e1e1e;padding:20px;margin:20px auto;border-radius:10px;max-width:720px;box-shadow:0 2px 8px rgba(0,0,0,0.5);}
     label{display:block;margin:10px 0 5px;font-weight:600;}
-    input, select, button{padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #ccc;width:100%;}
+    input, select, button{padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #555;width:100%;background:#2c2c2c;color:#e0e0e0;}
     button{background:#4a90e2;color:white;border:none;cursor:pointer;transition:0.3s;}
     button:hover{background:#357abd;}
     .subpanel{display:none;}
-    footer{margin-top:auto;background:#f9f9f9;padding:20px;text-align:center;display:flex;justify-content:center;gap:20px;}
+    #lang-select{position:absolute;top:20px;right:20px;width:100px;}
+    footer{margin-top:auto;background:#1e1e1e;padding:20px;text-align:center;display:flex;justify-content:center;gap:20px;}
     footer a{display:inline-block;padding:10px 20px;background:#4a90e2;color:white;border-radius:6px;text-decoration:none;transition:0.3s;}
     footer a:hover{background:#357abd;}
   </style>
 </head>
 <body>
-  <header>
-    <h1>NFC Web</h1>
-  </header>  <div id="splash">
+  <select id="lang-select">
+    <option value="auto">Авто</option>
+    <option value="ua">UA</option>
+    <option value="en">EN</option>
+    <option value="ru">RU</option>
+  </select>  <div id="splash">
     <img src="nfc.png" alt="NFC">
     <h1 id="splash-text">ПРИКЛАДІТЬ МІТКУ</h1>
   </div>  <div class="panel" id="tag-panel" style="display:none">
     <pre id="tag-info">Дані з тегу...</pre>
-    <label for="lang-select">Мова:</label>
-    <select id="lang-select">
-      <option value="auto">Авто</option>
-      <option value="ua">UA</option>
-      <option value="en">EN</option>
-      <option value="ru">RU</option>
-    </select><label for="record-type">Що записати:</label>
-<select id="record-type">
-  <option value="text">Текст</option>
-  <option value="url">Посилання</option>
-  <option value="sound">Звук</option>
-</select>
-<div class="subpanel" id="text-panel">
-  <input id="write-text" placeholder="Текст для запису"/>
-</div>
-<div class="subpanel" id="url-panel">
-  <input id="write-url" placeholder="https://example.com"/>
-</div>
-<div class="subpanel" id="sound-panel">
-  <select id="write-sound"></select>
-</div>
-<button id="btn-write">Записати вибране</button>
-<button id="btn-clear">Очистити тег</button>
-<pre id="log">Лог дій...</pre>
-
+    <label for="record-type">Що записати:</label>
+    <select id="record-type">
+      <option value="text">Текст</option>
+      <option value="url">Посилання</option>
+      <option value="sound">Звук</option>
+    </select>
+    <div class="subpanel" id="text-panel">
+      <input id="write-text" placeholder="Текст для запису"/>
+    </div>
+    <div class="subpanel" id="url-panel">
+      <input id="write-url" placeholder="https://example.com"/>
+    </div>
+    <div class="subpanel" id="sound-panel">
+      <select id="write-sound"></select>
+    </div>
+    <button id="btn-write">Записати вибране</button>
+    <button id="btn-clear">Очистити тег</button>
   </div>  <footer>
     <a href="https://tiktok.com/@mem.tag" target="_blank">TikTok @mem.tag</a>
     <a href="https://t.me/mem_soundtag" target="_blank">Telegram</a>
@@ -65,7 +58,6 @@
     const splashText = document.getElementById('splash-text');
     const tagPanel = document.getElementById('tag-panel');
     const tagInfo = document.getElementById('tag-info');
-    const logEl = document.getElementById('log');
     const writeText = document.getElementById('write-text');
     const writeUrl = document.getElementById('write-url');
     const writeSound = document.getElementById('write-sound');
@@ -84,11 +76,6 @@
       if(['ua','uk'].includes(lang)) return 'ua';
       if(['ru'].includes(lang)) return 'ru';
       return 'en';
-    }
-
-    function log(msg){
-      const ts = new Date().toLocaleTimeString();
-      logEl.textContent = ts + ' — ' + msg + '\n' + logEl.textContent;
     }
 
     function showSubPanel(){
@@ -117,7 +104,7 @@
           }
         });
       }catch(e){
-        log('Не вдалося завантажити snd.txt');
+        console.log('Не вдалося завантажити snd.txt');
       }
     }
 
@@ -165,37 +152,4 @@
       const type = recordTypeSel.value;
       let records = [];
       if(type==='text' && writeText.value.trim()) records.push({recordType:'text', data:writeText.value.trim()});
-      else if(type==='url' && writeUrl.value.trim()) records.push({recordType:'url', data:writeUrl.value.trim()});
-      else if(type==='sound' && writeSound.value) records.push({recordType:'url', data:writeSound.value});
-      else {log('Немає даних для запису'); return;}
-      try{
-        await ndef.write({records});
-        log('Записано успішно');
-      }catch(e){
-        log('Помилка запису: '+e);
-      }
-    });
-
-    btnClear.addEventListener('click', async ()=>{
-      if(!ndef) return;
-      splash.style.display='flex';
-      splashText.textContent='Очікую Мітку';
-      try{
-        await ndef.write({records:[]});
-        log('Тег очищено');
-      }catch(e){
-        log('Помилка очищення: '+e);
-      }
-    });
-
-    loadSounds();
-    showSubPanel();
-
-    if(langSelect.value==='auto'){
-      const autoLang = getBrowserLang();
-      langSelect.value = autoLang;
-    }
-
-    startScan();
-  </script></body>
-</html>
+      else if(type==='url' && writet
