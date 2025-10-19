@@ -98,9 +98,9 @@
   <input type="range" id="slider" min="1" max="59" value="10">
   <input type="number" id="timeValue" value="10" min="1" max="59">
   <select id="unit">
-    <option value="s">s</option>
-    <option value="m">m</option>
-    <option value="h">h</option>
+    <option value="s">seconds</option>
+    <option value="m">minutes</option>
+    <option value="h">hours</option>
   </select>
 </div>
 
@@ -116,30 +116,19 @@
 
 <script>
 const langData = {
-  en: {
-    title: "Create timer-sound",
-    sound: "Choose sound:",
-    time: "Choose time:",
-    or: "or enter exact time:",
-    create: "Create"
-  },
-  uk: {
-    title: "Створити таймер-звук",
-    sound: "Оберіть звук:",
-    time: "Оберіть час:",
-    or: "або введіть точний час:",
-    create: "Створити"
-  },
-  ru: {
-    title: "Создать таймер-звук",
-    sound: "Выберите звук:",
-    time: "Выберите время:",
-    or: "или введите точное время:",
-    create: "Создать"
-  }
+  en: { title: "Create timer-sound", sound: "Choose sound:", time: "Choose time:", or: "or enter exact time:", create: "Create" },
+  uk: { title: "Створити таймер-звук", sound: "Оберіть звук:", time: "Оберіть час:", or: "або введіть точний час:", create: "Створити" },
+  ru: { title: "Создать таймер-звук", sound: "Выберите звук:", time: "Выберите время:", or: "или введите точное время:", create: "Создать" }
 };
 
-// авто-вибір мови
+// мови для одиниць часу
+const unitNames = {
+  en: { s: "seconds", m: "minutes", h: "hours" },
+  uk: { s: "секунди", m: "хвилини", h: "години" },
+  ru: { s: "секунды", m: "минуты", h: "часы" }
+};
+
+// авто-вибір мови пристрою
 const userLang = navigator.language.startsWith('uk') ? 'uk' :
                  navigator.language.startsWith('ru') ? 'ru' : 'en';
 const langSelect = document.getElementById("lang");
@@ -155,6 +144,14 @@ function applyLang(code) {
   document.getElementById("time-label").textContent = l.time;
   document.getElementById("orText").textContent = l.or;
   document.getElementById("createBtn").textContent = l.create;
+  updateUnitNames(code);
+}
+
+function updateUnitNames(lang) {
+  const unitSelect = document.getElementById("unit");
+  ["s","m","h"].forEach((u,i)=>{
+    unitSelect.options[i].text = unitNames[lang][u];
+  });
 }
 
 // підвантаження snd.txt
@@ -180,6 +177,7 @@ async function loadSounds() {
 }
 loadSounds();
 
+// синхронізація слайдер ↔ input
 const slider = document.getElementById("slider");
 const timeValue = document.getElementById("timeValue");
 const unit = document.getElementById("unit");
@@ -189,16 +187,18 @@ slider.addEventListener("input", () => {
 });
 timeValue.addEventListener("input", () => {
   if (timeValue.value > 59) timeValue.value = 59;
+  if (timeValue.value < 1) timeValue.value = 1;
   slider.value = timeValue.value;
 });
 
+// кнопка створити
 document.getElementById("createBtn").addEventListener("click", () => {
   const soundPage = document.getElementById("sound").value;
   const exact = document.getElementById("exactTime").value;
   let t = "";
 
   if (exact) {
-    t = exact;
+    t = exact; // залишаємо ":" для формату hh:mm:ss
   } else {
     const val = Number(timeValue.value);
     const u = unit.value;
@@ -210,7 +210,7 @@ document.getElementById("createBtn").addEventListener("click", () => {
     return;
   }
 
-  const url = `https://memtag.github.io/${soundPage}/t?t=${encodeURIComponent(t)}`;
+  const url = `https://memtag.github.io/${soundPage}/t?t=${t}`;
   window.location.href = url;
 });
 </script>
