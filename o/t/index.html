@@ -2,7 +2,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-html,body{margin:0;background:#000;height:100%;overflow:hidden}
+html,body{margin:0;background:#000;height:100%;overflow:hidden;cursor:pointer}
 </style>
 </head>
 <body>
@@ -19,9 +19,15 @@ const eq=[
 ].map(b=>{const f=ctx.createBiquadFilter();f.type='peaking';f.frequency.value=b.f;f.gain.value=b.g;return f});
 src.connect(eq[0]);for(let i=0;i<eq.length-1;i++)eq[i].connect(eq[i+1]);eq.at(-1).connect(gain).connect(ctx.destination);
 function p(s){return s.replace(/s$/,'')*1000}
-function c(t){const n=new Date(),[h,m,s]=t.split(':').map(Number),d=new Date();d.setHours(h,m||0,s||0,0);if(d<n)d.setDate(d.getDate()+1);return d-n}
-let d=0;if(/\d+:\d+(:\d+)?/.test(t))d=c(t);else if(/\d+s?/.test(t))d=p(t);
-setTimeout(()=>{ctx.resume();a.play();},d);
+function c(t){const now=new Date();const parts=t.split(':').map(Number);const d=new Date();d.setHours(parts[0],parts[1]||0,parts[2]||0,0);if(d<now)d.setDate(d.getDate()+1);return d-now}
+function start(){
+  let delay=0;
+  if(/\d+:\d+(:\d+)?/.test(t)) delay=c(t);
+  else if(/\d+s?/.test(t)) delay=p(t);
+  setTimeout(()=>{ctx.resume();a.play();}, delay);
+  document.body.removeEventListener('click', start);
+}
+document.body.addEventListener('click', start);
 </script>
 </body>
 </html>
