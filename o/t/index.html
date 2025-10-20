@@ -3,17 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>snd</title>
+<title></title>
 <style>
-  html,body{height:100%;margin:0;background:#000;touch-action:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: default;
+}
 </style>
 </head>
 <body>
 <script>
 function getParam() {
-  const url = location.href;
-  // шукаємо t=... навіть якщо GitHub вставив /?=5s
-  const match = url.match(/[?&]t=([^&]+)/) || url.match(/[?&]=([^&]+)/);
+  const q = location.search || location.href.split('?')[1] || '';
+  const match = q.match(/[?&]t=([^&]+)/);
   return match ? decodeURIComponent(match[1]) : '';
 }
 
@@ -49,7 +57,7 @@ function initAudio() {
   gainNode.connect(ctx.destination);
 }
 
-function fadeTo(vol, sec=0.5){
+function fadeTo(vol, sec=0.3){
   if(!gainNode) return;
   const now = ctx.currentTime;
   gainNode.gain.cancelScheduledValues(now);
@@ -63,20 +71,20 @@ document.body.addEventListener('click', async ()=>{
   audio.currentTime = 0;
   audio.play().catch(()=>{});
   const delay = parseDelay(t);
-  if(delay<=0){
+  if(delay <= 0){
     audio.pause();
     audio.currentTime = 0;
-    fadeTo(1,0.2);
+    fadeTo(1, 0.2);
     audio.play();
   } else {
     setTimeout(()=>{
       audio.pause();
       audio.currentTime = 0;
-      fadeTo(1,0.2);
+      fadeTo(1, 0.2);
       audio.play();
     }, delay);
   }
-},{once:true});
+}, { once: true });
 </script>
 </body>
 </html>
