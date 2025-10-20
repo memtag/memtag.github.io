@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>.</title>
+<title>&#8203;</title>
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: #000;
-  overflow: hidden;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-  cursor: default;
+html,body{
+  margin:0;
+  padding:0;
+  height:100%;
+  background:#000;
+  touch-action:none;
+  -webkit-tap-highlight-color:transparent;
+  cursor:default;
+  overflow:hidden;
 }
 </style>
 </head>
@@ -40,16 +40,15 @@ function parseDelay(v){
     const now = new Date();
     const [h,m,s] = v.split(':').map(Number);
     const target = new Date();
-    target.setHours(h,m||0,s||0,0);
-    if(target<=now) target.setDate(target.getDate()+1);
-    return target-now;
+    target.setHours(h, m||0, s||0, 0);
+    if(target <= now) target.setDate(target.getDate()+1);
+    return target - now;
   }
   return 0;
 }
 
 function initAudio() {
-  if(ctx) return;
-  ctx = new (window.AudioContext||window.webkitAudioContext)();
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
   const src = ctx.createMediaElementSource(audio);
   gainNode = ctx.createGain();
   gainNode.gain.value = 0;
@@ -57,21 +56,20 @@ function initAudio() {
   gainNode.connect(ctx.destination);
 }
 
-function fadeTo(vol, sec=0.3){
+function fadeTo(vol, sec=0.3) {
   if(!gainNode) return;
   const now = ctx.currentTime;
   gainNode.gain.cancelScheduledValues(now);
   gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-  gainNode.gain.linearRampToValueAtTime(vol, now+sec);
+  gainNode.gain.linearRampToValueAtTime(vol, now + sec);
 }
 
 document.body.addEventListener('click', async ()=>{
-  initAudio();
+  if(!ctx) initAudio();
   await ctx.resume();
-  audio.currentTime = 0;
-  audio.play().catch(()=>{});
+  await audio.play().catch(()=>{});
   const delay = parseDelay(t);
-  if(delay <= 0){
+  if(delay <= 0) {
     audio.pause();
     audio.currentTime = 0;
     fadeTo(1, 0.2);
