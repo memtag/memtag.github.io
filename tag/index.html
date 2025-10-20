@@ -1,155 +1,219 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>NFC Web</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemTag NFC</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;margin:0;padding:0;background:#121212;color:#e0e0e0;display:flex;flex-direction:column;min-height:100vh;}
-    #splash{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1e1e1e;}
-    #splash img{width:150px;height:150px;margin-bottom:20px;}
-    #splash h1{font-size:1.8rem;margin:0;color:#fff;}
-    .panel{background:#1e1e1e;padding:20px;margin:20px auto;border-radius:10px;max-width:720px;box-shadow:0 2px 8px rgba(0,0,0,0.5);}
-    label{display:block;margin:10px 0 5px;font-weight:600;}
-    input, select, button{padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #555;width:100%;background:#2c2c2c;color:#e0e0e0;}
-    button{background:#4a90e2;color:white;border:none;cursor:pointer;transition:0.3s;}
-    button:hover{background:#357abd;}
-    .subpanel{display:none;}
-    #lang-select{position:absolute;top:20px;right:20px;width:100px;}
-    footer{margin-top:auto;background:#1e1e1e;padding:20px;text-align:center;display:flex;justify-content:center;gap:20px;}
-    footer a{display:inline-block;padding:10px 20px;background:#4a90e2;color:white;border-radius:6px;text-decoration:none;transition:0.3s;}
-    footer a:hover{background:#357abd;}
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    #lang-select {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #1e1e1e;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+    }
+    img {
+      width: 200px;
+      height: 200px;
+      margin-bottom: 20px;
+    }
+    .info {
+      font-size: 18px;
+      margin-top: 10px;
+      word-break: break-all;
+    }
+    .actions {
+      margin-top: 20px;
+    }
+    .btn {
+      background: #333;
+      color: #eee;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    .btn:hover {
+      background: #444;
+    }
+    footer {
+      position: fixed;
+      bottom: 10px;
+      display: flex;
+      gap: 15px;
+    }
+    footer button {
+      background: #2c2c2c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 16px;
+    }
+    footer button:hover {
+      background: #3a3a3a;
+    }
   </style>
 </head>
 <body>
   <select id="lang-select">
-    <option value="auto">Авто</option>
     <option value="ua">UA</option>
     <option value="en">EN</option>
     <option value="ru">RU</option>
-  </select>  <div id="splash">
-    <img src="nfc.png" alt="NFC">
-    <h1 id="splash-text">ПРИКЛАДІТЬ МІТКУ</h1>
-  </div>  <div class="panel" id="tag-panel" style="display:none">
-    <pre id="tag-info">Дані з тегу...</pre>
-    <label for="record-type">Що записати:</label>
-    <select id="record-type">
-      <option value="text">Текст</option>
-      <option value="url">Посилання</option>
-      <option value="sound">Звук</option>
-    </select>
-    <div class="subpanel" id="text-panel">
-      <input id="write-text" placeholder="Текст для запису"/>
-    </div>
-    <div class="subpanel" id="url-panel">
-      <input id="write-url" placeholder="https://example.com"/>
-    </div>
-    <div class="subpanel" id="sound-panel">
-      <select id="write-sound"></select>
-    </div>
-    <button id="btn-write">Записати вибране</button>
-    <button id="btn-clear">Очистити тег</button>
-  </div>  <footer>
-    <a href="https://tiktok.com/@mem.tag" target="_blank">TikTok @mem.tag</a>
-    <a href="https://t.me/mem_soundtag" target="_blank">Telegram</a>
-  </footer>  <script>
-    const splash = document.getElementById('splash');
-    const splashText = document.getElementById('splash-text');
-    const tagPanel = document.getElementById('tag-panel');
-    const tagInfo = document.getElementById('tag-info');
-    const writeText = document.getElementById('write-text');
-    const writeUrl = document.getElementById('write-url');
-    const writeSound = document.getElementById('write-sound');
-    const btnWrite = document.getElementById('btn-write');
-    const btnClear = document.getElementById('btn-clear');
-    const recordTypeSel = document.getElementById('record-type');
-    const textPanel = document.getElementById('text-panel');
-    const urlPanel = document.getElementById('url-panel');
-    const soundPanel = document.getElementById('sound-panel');
-    const langSelect = document.getElementById('lang-select');
+  </select>
 
-    let ndef = null;
+  <img src="nfc.png" alt="NFC">
+  <h2 id="status">Прикладіть мітку</h2>
+  <div class="info" id="uid"></div>
+  <div class="info" id="type"></div>
+  <div class="info" id="content"></div>
 
-    function getBrowserLang(){
-      const lang = navigator.language.slice(0,2);
-      if(['ua','uk'].includes(lang)) return 'ua';
-      if(['ru'].includes(lang)) return 'ru';
-      return 'en';
-    }
+  <div class="actions">
+    <button class="btn" id="writeText">Записати текст</button>
+    <button class="btn" id="writeUrl">Записати посилання</button>
+    <button class="btn" id="clearTag">Очистити тег</button>
+  </div>
 
-    function showSubPanel(){
-      textPanel.style.display='none';
-      urlPanel.style.display='none';
-      soundPanel.style.display='none';
-      if(recordTypeSel.value==='text') textPanel.style.display='block';
-      else if(recordTypeSel.value==='url') urlPanel.style.display='block';
-      else if(recordTypeSel.value==='sound') soundPanel.style.display='block';
-    }
+  <footer>
+    <button onclick="window.open('https://tiktok.com/@mem.tag','_blank')">TikTok</button>
+    <button onclick="window.open('https://t.me/mem_soundtag','_blank')">Telegram</button>
+  </footer>
 
-    recordTypeSel.addEventListener('change', showSubPanel);
+  <script>
+    const lang = navigator.language.startsWith('ru') ? 'ru' :
+                 navigator.language.startsWith('en') ? 'en' : 'ua';
+    document.getElementById('lang-select').value = lang;
 
-    async function loadSounds(){
-      try{
-        const resp = await fetch('snd.txt');
-        const text = await resp.text();
-        const lines = text.split('\n');
-        lines.forEach(line=>{
-          const m = line.match(/name="([^"]+)"\s+page="([^"]+)"/);
-          if(m){
-            const opt = document.createElement('option');
-            opt.value = `https://memtag.github.io/${m[2]}/`;
-            opt.textContent = m[1];
-            writeSound.appendChild(opt);
-          }
-        });
-      }catch(e){
-        console.log('Не вдалося завантажити snd.txt');
+    const texts = {
+      ua: {
+        touch: "Прикладіть мітку",
+        waiting: "Очікую мітку...",
+        unsupported: "Ваш браузер не підтримує NFC",
+        uid: "UID:",
+        type: "Тип:",
+        content: "Зміст:",
+        mixed: "Змішаний"
+      },
+      en: {
+        touch: "Tap a tag",
+        waiting: "Waiting for tag...",
+        unsupported: "Your browser doesn't support NFC",
+        uid: "UID:",
+        type: "Type:",
+        content: "Content:",
+        mixed: "Mixed"
+      },
+      ru: {
+        touch: "Приложите метку",
+        waiting: "Ожидаю метку...",
+        unsupported: "Ваш браузер не поддерживает NFC",
+        uid: "UID:",
+        type: "Тип:",
+        content: "Содержимое:",
+        mixed: "Смешанное"
       }
+    };
+
+    function t(key) {
+      const current = document.getElementById('lang-select').value;
+      return texts[current][key];
     }
 
-    async function startScan(){
-      if(!('NDEFReader' in window)){
-        splashText.textContent='Ваш браузер не підтримує NFC';
+    const statusEl = document.getElementById('status');
+    const uidEl = document.getElementById('uid');
+    const typeEl = document.getElementById('type');
+    const contentEl = document.getElementById('content');
+
+    async function startNFC() {
+      if (!('NDEFReader' in window)) {
+        statusEl.textContent = t('unsupported');
         return;
       }
-      ndef = new NDEFReader();
-      try{
+
+      try {
+        const ndef = new NDEFReader();
         await ndef.scan();
-        splashText.textContent='ПРИКЛАДІТЬ МІТКУ';
+        statusEl.textContent = t('touch');
+
         ndef.onreading = event => {
-          const serial = event.serialNumber || '00 00 00 00';
-          let contentArr = [];
-          for(const record of event.message.records){
-            try{
-              if(record.recordType==='text') contentArr.push(new TextDecoder().decode(record.data));
-              else if(record.recordType==='url') contentArr.push(new TextDecoder().decode(record.data));
-              else contentArr.push('');
-            }catch(e){
-              contentArr.push('');
-            }
+          navigator.vibrate(100);
+          const uid = event.serialNumber || "—";
+          let type = "";
+          let content = "";
+
+          if (!event.message.records.length) {
+            type = "—";
+            content = "—";
+          } else {
+            const records = event.message.records;
+            const types = [...new Set(records.map(r => r.recordType))];
+            if (types.length > 1) type = t('mixed');
+            else if (types[0] === "url") type = "URL";
+            else if (types[0] === "text") type = "Text";
+            else type = t('mixed');
+
+            const decoder = new TextDecoder();
+            content = records.map(r => decoder.decode(r.data)).join(" ");
           }
 
-          let contentStr;
-          if(contentArr.length===0 || contentArr.every(c=>c==='')) contentStr='Порожнє';
-          else if(contentArr.every(c=>/^https?:\/\//.test(c))) contentStr='URL';
-          else if(contentArr.every(c=>c!=='' && !/^https?:\/\//.test(c))) contentStr='Text';
-          else contentStr='Змішане';
-
-          splash.style.display='none';
-          tagPanel.style.display='block';
-          tagInfo.textContent = `UID: ${serial}\nТип: ${contentStr}\nЗміст: ${contentStr==='Змішане' ? 'невідомий' : contentArr.join(', ')}`;
+          uidEl.textContent = t('uid') + " " + uid;
+          typeEl.textContent = t('type') + " " + type;
+          contentEl.textContent = t('content') + " " + (type === t('mixed') ? "Невідомий" : content);
         };
-      }catch(e){
-        splashText.textContent='Помилка при скануванні: '+e;
+      } catch (err) {
+        statusEl.textContent = t('unsupported');
       }
     }
 
-    btnWrite.addEventListener('click', async ()=>{
-      if(!ndef) return;
-      splash.style.display='flex';
-      splashText.textContent='Очікую Мітку';
-      const type = recordTypeSel.value;
-      let records = [];
-      if(type==='text' && writeText.value.trim()) records.push({recordType:'text', data:writeText.value.trim()});
-      else if(type==='url' && writet
+    async function writeNFC(data) {
+      if (!('NDEFReader' in window)) {
+        statusEl.textContent = t('unsupported');
+        return;
+      }
+      try {
+        statusEl.textContent = t('waiting');
+        const ndef = new NDEFReader();
+        await ndef.write(data);
+        statusEl.textContent = t('touch');
+      } catch (e) {
+        statusEl.textContent = "Помилка запису";
+      }
+    }
+
+    document.getElementById('writeText').onclick = () => {
+      const txt = prompt("Введіть текст для запису:");
+      if (txt) writeNFC({ records: [{ recordType: "text", data: txt }] });
+    };
+    document.getElementById('writeUrl').onclick = () => {
+      const url = prompt("Введіть посилання для запису:");
+      if (url) writeNFC({ records: [{ recordType: "url", data: url }] });
+    };
+    document.getElementById('clearTag').onclick = () => writeNFC({ records: [] });
+
+    document.getElementById('lang-select').onchange = () => {
+      statusEl.textContent = t('touch');
+      uidEl.textContent = "";
+      typeEl.textContent = "";
+      contentEl.textContent = "";
+    };
+
+    startNFC();
+  </script>
+</body>
+</html>
