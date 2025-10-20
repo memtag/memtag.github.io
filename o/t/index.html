@@ -1,71 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> </title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>snd</title>
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  background: black;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-}
+  html,body{height:100%;margin:0;background:#000;touch-action:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
 </style>
 </head>
 <body>
 <script>
-const params = new URLSearchParams(location.search);
-const t = params.get("t");
-const audio = new Audio("sound.mp3");
+function getParam() {
+  const url = location.href;
+  // шукаємо t=... навіть якщо GitHub вставив /?=5s
+  const match = url.match(/[?&]t=([^&]+)/) || url.match(/[?&]=([^&]+)/);
+  return match ? decodeURIComponent(match[1]) : '';
+}
+
+const t = getParam();
+const audio = new Audio('../sound.mp3');
 audio.loop = true;
+audio.preload = 'auto';
 audio.volume = 0;
 
-function parseTime(v) {
-  if (!v) return 0;
-  if (v.endsWith("s")) return parseFloat(v) * 1000;
-  if (v.includes(":")) {
+let ctx, gainNode;
+
+function parseDelay(v){
+  if(!v) return 0;
+  if(v.endsWith('s')) return parseFloat(v)*1000;
+  if(v.includes(':')){
     const now = new Date();
-    const [h, m, s] = v.split(":").map(Number);
+    const [h,m,s] = v.split(':').map(Number);
     const target = new Date();
-    target.setHours(h, m || 0, s || 0, 0);
-    if (target <= now) target.setDate(target.getDate() + 1);
-    return target - now;
+    target.setHours(h,m||0,s||0,0);
+    if(target<=now) target.setDate(target.getDate()+1);
+    return target-now;
   }
   return 0;
 }
 
-function setupEQ() {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+function initAudio() {
+  if(ctx) return;
+  ctx = new (window.AudioContext||window.webkitAudioContext)();
   const src = ctx.createMediaElementSource(audio);
-  const eq = ctx.createBiquadFilter();
-  eq.type = "peaking";
-  eq.frequency.value = 2000;
-  eq.gain.value = 6;
-  src.connect(eq);
-  eq.connect(ctx.destination);
-  ctx.resume();
-  return ctx;
+  gainNode = ctx.createGain();
+  gainNode.gain.value = 0;
+  src.connect(gainNode);
+  gainNode.connect(ctx.destination);
 }
 
-document.body.addEventListener("click", async () => {
-  const ctx = setupEQ();
-  await audio.play();
+function fadeTo(vol, sec=0.5){
+  if(!gainNode) return;
+  const now = ctx.currentTime;
+  gainNode.gain.cancelScheduledValues(now);
+  gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+  gainNode.gain.linearRampToValueAtTime(vol, now+sec);
+}
 
-  const delay = parseTime(t);
-  console.log("Delay:", delay, "ms");
-
-  setTimeout(() => {
+document.body.addEventListener('click', async ()=>{
+  initAudio();
+  await ctx.resume();
+  audio.currentTime = 0;
+  audio.play().catch(()=>{});
+  const delay = parseDelay(t);
+  if(delay<=0){
     audio.pause();
     audio.currentTime = 0;
-    audio.volume = 1;
+    fadeTo(1,0.2);
     audio.play();
-  }, delay);
-}, { once: true });
+  } else {
+    setTimeout(()=>{
+      audio.pause();
+      audio.currentTime = 0;
+      fadeTo(1,0.2);
+      audio.play();
+    }, delay);
+  }
+},{once:true});
 </script>
 </body>
 </html>
