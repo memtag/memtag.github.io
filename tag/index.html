@@ -1,297 +1,292 @@
-<!doctype html>
-
-<html lang="uk">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MemTag NFC</title>
   <style>
-    :root{--bg:#121214;--panel:#1e1e22;--muted:#9aa0a6;--accent:#9aa0a6}
-    html,body{height:100%;margin:0;background:var(--bg);color:#e6e6e6;font-family:Inter,system-ui,Arial, sans-serif}
-    /* splash fullscreen */
-    #splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:linear-gradient(180deg,#151517, #1b1b1d);z-index:10}
-    #splash img{width:150px;height:150px;border-radius:12px;object-fit:cover}
-    #splash h1{font-size:24px;margin:0;letter-spacing:0.6px}
-    #skip-btn{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;padding:12px 20px;border-radius:10px;background:#2a2a2a;color:#fff;border:none}/* main container (menu) */
-.container{max-width:720px;margin:24px auto;padding:18px;background:var(--panel);border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
-.row{display:flex;gap:12px}
-.field{margin-top:12px}
-select,input{width:100%;padding:10px;border-radius:8px;border:1px solid #2b2b2b;background:#151517;color:#e6e6e6}
-label{font-size:13px;color:var(--muted);}
-.actions{display:flex;gap:10px;margin-top:14px}
-.btn{flex:1;padding:12px;border-radius:10px;border:none;background:#2a2a2a;color:#fff}
-.btn:hover{opacity:0.95}
-
-/* fixed footer buttons */
-.footer-fixed{position:fixed;left:0;right:0;bottom:12px;display:flex;gap:12px;justify-content:center;padding:0 12px}
-.footer-fixed a{display:inline-block;padding:10px 16px;border-radius:10px;background:rgba(255,255,255,0.04);color:#e6e6e6;text-decoration:none;border:1px solid rgba(255,255,255,0.03)}
-
-pre{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:12px;border-radius:8px;color:#dfe6e9}
-
-/* language at top-right */
-#lang-select{position:fixed;top:12px;right:12px;padding:8px;border-radius:8px;background:#1b1b1b;color:#e6e6e6;border:1px solid rgba(255,255,255,0.03)}
-
-@media (max-width:480px){#splash img{width:120px;height:120px} .container{margin:12px}}
-
+    * {
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      text-align: center;
+    }
+    #lang {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #1e1e1e;
+      border: none;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    img {
+      width: 180px;
+      height: 180px;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    .info {
+      font-size: 18px;
+      margin-top: 8px;
+      word-break: break-all;
+    }
+    .btn {
+      background: #2c2c2c;
+      color: #fff;
+      border: none;
+      padding: 14px 30px;
+      border-radius: 10px;
+      font-size: 18px;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .btn:hover {
+      background: #3a3a3a;
+    }
+    .hidden {
+      display: none;
+    }
+    footer {
+      position: fixed;
+      bottom: 20px;
+      display: flex;
+      gap: 15px;
+    }
+    footer button {
+      background: #2c2c2c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 16px;
+    }
+    footer button:hover {
+      background: #3a3a3a;
+    }
   </style>
 </head>
 <body>
-  <select id="lang-select" aria-label="language">
-    <option value="auto">Auto</option>
-    <option value="ua">UA</option>
-    <option value="en">EN</option>
-    <option value="ru">RU</option>
-  </select>  <div id="splash" aria-hidden="false">
-    <img src="nfc.png" alt="NFC">
-    <h1 id="splash-text">ПРИКЛАДІТЬ МІТКУ</h1>
-    <button id="skip-btn">Пропустити</button>
-  </div>  <main style="display:none">
-    <div class="container" id="menu">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:13px;color:var(--muted)">Інформація про мітку</div>
-          <div id="info-block">
-            <pre id="info-uid">UID: —</pre>
-            <pre id="info-type">Тип: —</pre>
-            <pre id="info-content">Зміст: —</pre>
-          </div>
-        </div>
-      </div><div class="field">
-    <label for="action-select">Дія</label>
-    <select id="action-select">
-      <option value="write-text">Запис: Текст</option>
-      <option value="write-url">Запис: Посилання</option>
-      <option value="write-sound">Запис: Звук</option>
-      <option value="clear">Очистити тег</option>
-    </select>
+  <button id="lang">EN</button>
+
+  <div id="screen">
+    <img id="nfcImage" src="nfc.png" alt="NFC">
+    <h1 id="status">Tap a tag</h1>
+    <div class="info" id="uid"></div>
+    <div class="info" id="type"></div>
+    <div class="info" id="content"></div>
   </div>
 
-  <div id="write-text-panel" class="field" style="display:none">
-    <label>Текст для запису</label>
-    <input id="input-text" placeholder="Текст...">
-  </div>
+  <button class="btn" id="mainButton">Skip</button>
 
-  <div id="write-url-panel" class="field" style="display:none">
-    <label>Посилання для запису</label>
-    <input id="input-url" placeholder="https://example.com">
-  </div>
+  <footer class="hidden" id="footer">
+    <button onclick="window.open('https://tiktok.com/@mem.tag','_blank')">TikTok</button>
+    <button onclick="window.open('https://t.me/mem_soundtag','_blank')">Telegram</button>
+  </footer>
 
-  <div id="write-sound-panel" class="field" style="display:none">
-    <label>Оберіть звук</label>
-    <select id="select-sound"></select>
-  </div>
+  <script>
+    // === Multilanguage ===
+    const langBtn = document.getElementById("lang");
+    const statusEl = document.getElementById("status");
+    const uidEl = document.getElementById("uid");
+    const typeEl = document.getElementById("type");
+    const contentEl = document.getElementById("content");
+    const mainBtn = document.getElementById("mainButton");
+    const nfcImage = document.getElementById("nfcImage");
+    const footer = document.getElementById("footer");
 
-  <div class="actions">
-    <button class="btn" id="btn-proceed">Виконати</button>
-    <button class="btn" id="btn-rescan">Перезапустити скан</button>
-  </div>
-
-</div>
-
-  </main>  <div class="footer-fixed">
-    <a id="tiktok-btn" href="https://tiktok.com/" target="_blank">TikTok</a>
-    <a id="tg-btn" href="https://t.me/mem_soundtag" target="_blank">Telegram</a>
-  </div><script>
-// Localization strings
-const LOCALES = {
-  ua:{splash:'ПРИКЛАДІТЬ МІТКУ', skip:'Пропустити', waiting:'Очікую Мітку...', unsupported:'Ваш браузер не підтримує NFC', uid:'UID:', type:'Тип:', content:'Зміст:', mixed:'Змішане', unknown:'невідомий'},
-  en:{splash:'PLACE TAG', skip:'Skip', waiting:'Waiting for tag...', unsupported:'Your browser does not support NFC', uid:'UID:', type:'Type:', content:'Content:', mixed:'Mixed', unknown:'unknown'},
-  ru:{splash:'ПРИЛОЖИТЕ МЕТКУ', skip:'Пропустить', waiting:'Ожидаю метку...', unsupported:'Ваш браузер не поддерживает NFC', uid:'UID:', type:'Тип:', content:'Содержимое:', mixed:'Смешанное', unknown:'неизвестно'}
-};
-
-const langSelect = document.getElementById('lang-select');
-function detectLang(){
-  const nav = navigator.language||navigator.userLanguage||'en';
-  const code = nav.slice(0,2).toLowerCase();
-  if(['uk','ua'].includes(code)) return 'ua';
-  if(code==='ru') return 'ru';
-  return 'en';
-}
-
-function L(key){
-  const val = langSelect.value==='auto' ? detectLang() : langSelect.value;
-  return LOCALES[val][key];
-}
-
-// UI elements
-const splash = document.getElementById('splash');
-const splashText = document.getElementById('splash-text');
-const skipBtn = document.getElementById('skip-btn');
-const main = document.querySelector('main');
-const infoUid = document.getElementById('info-uid');
-const infoType = document.getElementById('info-type');
-const infoContent = document.getElementById('info-content');
-const actionSelect = document.getElementById('action-select');
-const writeTextPanel = document.getElementById('write-text-panel');
-const writeUrlPanel = document.getElementById('write-url-panel');
-const writeSoundPanel = document.getElementById('write-sound-panel');
-const inputText = document.getElementById('input-text');
-const inputUrl = document.getElementById('input-url');
-const selectSound = document.getElementById('select-sound');
-const btnProceed = document.getElementById('btn-proceed');
-const btnRescan = document.getElementById('btn-rescan');
-
-let ndef = null;
-let sndMap = {}; // page -> name
-
-// set initial language UI
-langSelect.value='auto';
-function refreshLocaleUI(){
-  splashText.textContent = L('splash');
-  skipBtn.textContent = L('skip');
-}
-langSelect.addEventListener('change', refreshLocaleUI);
-refreshLocaleUI();
-
-// load snd.txt into map
-async function loadSounds(){
-  try{
-    const res = await fetch('snd.txt');
-    const txt = await res.text();
-    sndMap = {};
-    txt.split(/\r?\n/).forEach(line=>{
-      const m = line.match(/name="([^\"]*)"\s+page="([^\"]*)"/);
-      if(m){ sndMap[m[2]] = m[1]; const opt = document.createElement('option'); opt.value=m[2]; opt.textContent=m[1]; selectSound.appendChild(opt);}    });
-  }catch(e){ console.log('snd load failed',e); }
-}
-
-// show/hide write subpanels
-function onActionChange(){
-  writeTextPanel.style.display='none'; writeUrlPanel.style.display='none'; writeSoundPanel.style.display='none';
-  const v = actionSelect.value;
-  if(v==='write-text') writeTextPanel.style.display='block';
-  if(v==='write-url') writeUrlPanel.style.display='block';
-  if(v==='write-sound') writeSoundPanel.style.display='block';
-}
-actionSelect.addEventListener('change', onActionChange);
-onActionChange();
-
-// transition to menu
-function openMenu(){
-  splash.style.display='none';
-  main.style.display='block';
-}
-
-skipBtn.addEventListener('click', ()=>{
-  openMenu();
-});
-
-// NFC helpers
-function formatUID(uid){ if(!uid) return '00 00 00 00'; return uid.match(/.{1,2}/g)?.join(' ') || uid; }
-
-async function startScan(){
-  if(!('NDEFReader' in window)){
-    splashText.textContent = L('unsupported');
-    return;
-  }
-  try{
-    ndef = new NDEFReader();
-    await ndef.scan();
-    // show prompt on splash
-    splashText.textContent = L('splash');
-
-    ndef.onreading = async (event)=>{
-      try{ navigator.vibrate?.(120);}catch(e){}
-      const uid = event.serialNumber || '';
-      // collect record payloads
-      const records = event.message.records || [];
-      const decoded = [];
-      for(const r of records){
-        try{
-          if(r.recordType==='text') decoded.push(new TextDecoder().decode(r.data));
-          else if(r.recordType==='url') decoded.push(new TextDecoder().decode(r.data));
-          else {
-            // try to decode any bytes
-            decoded.push(r.data ? new TextDecoder().decode(r.data) : '');
-          }
-        }catch(e){ decoded.push(''); }
+    const texts = {
+      en: {
+        tap: "Tap a tag",
+        skip: "Skip",
+        cancel: "Cancel",
+        waiting: "Waiting for tag...",
+        reading: "Reading tag...",
+        writing: "Waiting for tag to write...",
+        unsupported: "Your browser doesn't support NFC",
+        uid: "UID:",
+        type: "Content Type:",
+        content: "Content:",
+        mixed: "Mixed",
+        unknown: "Unknown",
+        error: "Error",
+        back: "Return"
+      },
+      ua: {
+        tap: "Прикладіть мітку",
+        skip: "Пропустити",
+        cancel: "Скасувати",
+        waiting: "Очікую мітку...",
+        reading: "Зчитую мітку...",
+        writing: "Очікую мітку для запису...",
+        unsupported: "Ваш браузер не підтримує NFC",
+        uid: "UID:",
+        type: "Тип змісту:",
+        content: "Зміст:",
+        mixed: "Змішане",
+        unknown: "Невідомо",
+        error: "Помилка",
+        back: "Повернутися"
+      },
+      ru: {
+        tap: "Приложите метку",
+        skip: "Пропустить",
+        cancel: "Отмена",
+        waiting: "Ожидаю метку...",
+        reading: "Читаю метку...",
+        writing: "Ожидаю метку для записи...",
+        unsupported: "Ваш браузер не поддерживает NFC",
+        uid: "UID:",
+        type: "Тип содержимого:",
+        content: "Содержимое:",
+        mixed: "Смешанное",
+        unknown: "Неизвестно",
+        error: "Ошибка",
+        back: "Вернуться"
       }
-
-      // determine content type
-      let contentType = 'Порожнє';
-      if(decoded.length===0 || decoded.every(c=>c==='')) contentType='Порожнє';
-      else if(decoded.every(c=>/^https?:\/\//.test(c))) contentType='URL';
-      else if(decoded.every(c=>c!=='' && !/^https?:\/\//.test(c))) contentType='Text';
-      else contentType='Змішане';
-
-      // detect sound: if URL points to memtag.github.io/<page> -> map
-      let contentDisplay = '';
-      if(contentType==='URL'){
-        // check each url for memtag pattern
-        let foundSound = null;
-        for(const u of decoded){
-          try{ const url = new URL(u);
-            if(url.hostname.toLowerCase().includes('memtag.github.io')){
-              // get first path segment
-              const seg = url.pathname.split('/').filter(s=>s)[0] || '';
-              if(seg && sndMap[seg]){ foundSound = {page:seg, name:sndMap[seg]}; break; }
-            }
-          }catch(e){}
-        }
-        if(foundSound){ contentType='Звук'; contentDisplay = `${foundSound.name} (page=${foundSound.page})`; }
-        else { contentDisplay = decoded.join('\n'); }
-      } else if(contentType==='Text'){
-        contentDisplay = decoded.join('\n');
-      } else if(contentType==='Змішане'){
-        contentDisplay = L('unknown');
-      } else {
-        contentDisplay = L('unknown');
-      }
-
-      // show menu and info
-      openMenu();
-      infoUid.textContent = `${L('uid')} ${formatUID(uid)}`;
-      infoType.textContent = `${L('type')} ${contentType}`;
-      infoContent.textContent = `${L('content')} ${contentDisplay}`;
     };
-  }catch(err){
-    splashText.textContent = L('unsupported');
-    console.log('scan error',err);
-  }
-}
 
-// write / clear flow
-async function performAction(){
-  if(!ndef){ alert(L('unsupported')); return; }
-  const action = actionSelect.value;
-  if(action==='clear'){
-    // show waiting splash
-    splash.style.display='flex'; splashText.textContent = L('waiting');
-    try{ await ndef.write({records:[]}); splashText.textContent = L('splash'); }catch(e){ console.log('clear err',e); }
-    // after write return to menu (scan remains active)
-    splash.style.display='none';
-    return;
-  }
+    let currentLang = "en";
+    function setLang(lang) {
+      currentLang = lang;
+      langBtn.textContent = lang.toUpperCase();
+      statusEl.textContent = texts[lang].tap;
+      mainBtn.textContent = texts[lang].skip;
+    }
 
-  let records = [];
-  if(action==='write-text'){
-    const v = inputText.value.trim(); if(!v){ alert('Введіть текст'); return; }
-    records.push({recordType:'text', data:v});
-  }
-  if(action==='write-url'){
-    const v = inputUrl.value.trim(); if(!v){ alert('Введіть URL'); return; }
-    records.push({recordType:'url', data:v});
-  }
-  if(action==='write-sound'){
-    const pg = selectSound.value; if(!pg){ alert('Оберіть звук'); return; }
-    const url = `https://memtag.github.io/${pg}/`;
-    records.push({recordType:'url', data:url});
-  }
+    langBtn.onclick = () => {
+      currentLang = currentLang === "en" ? "ua" : currentLang === "ua" ? "ru" : "en";
+      setLang(currentLang);
+    };
 
-  // writing: show waiting splash
-  splash.style.display='flex'; splashText.textContent = L('waiting');
-  try{
-    await ndef.write({records});
-  }catch(e){ console.log('write err',e); }
-  // hide splash after attempt
-  splash.style.display='none';
-}
+    // Detect browser language
+    const browserLang = navigator.language.startsWith("uk")
+      ? "ua"
+      : navigator.language.startsWith("ru")
+      ? "ru"
+      : "en";
+    setLang(browserLang);
 
-btnProceed.addEventListener('click', performAction);
-btnRescan.addEventListener('click', ()=>{ startScan(); alert('Перезапуск сканування'); });
+    // === NFC Logic ===
+    async function startNFC() {
+      if (!("NDEFReader" in window)) {
+        showError(texts[currentLang].unsupported);
+        return;
+      }
+      try {
+        const ndef = new NDEFReader();
+        await ndef.scan();
+        statusEl.textContent = texts[currentLang].tap;
+        ndef.onreading = async event => {
+          navigator.vibrate(100);
+          const uid = event.serialNumber || "—";
+          const records = event.message.records;
+          let type = texts[currentLang].unknown;
+          let content = texts[currentLang].unknown;
 
-// initialization
-loadSounds().then(()=>startScan());
+          if (records.length) {
+            const decoder = new TextDecoder();
+            const first = records[0];
+            const data = decoder.decode(first.data);
+            if (first.recordType === "url" && data.includes("memtag.github.io")) {
+              type = "Sound";
+              content = await resolveSoundName(data);
+            } else if (first.recordType === "url") {
+              type = "URL";
+              content = data;
+            } else if (first.recordType === "text") {
+              type = "Text";
+              content = data;
+            } else {
+              type = texts[currentLang].mixed;
+              content = texts[currentLang].unknown;
+            }
+          }
 
-</script></body>
+          showMenu(uid, type, content);
+        };
+      } catch (err) {
+        showError(texts[currentLang].error);
+      }
+    }
+
+    async function resolveSoundName(url) {
+      try {
+        const res = await fetch("snd.txt");
+        const txt = await res.text();
+        const lines = txt.split("\n");
+        const match = lines.find(line => line.includes(`page="${url.split("/").pop()}"`));
+        if (match) {
+          const name = match.match(/name="([^"]+)"/);
+          return name ? name[1] : url;
+        }
+      } catch {}
+      return url;
+    }
+
+    function showMenu(uid, type, content) {
+      nfcImage.src = "nfc.png";
+      uidEl.textContent = `${texts[currentLang].uid} ${uid}`;
+      typeEl.textContent = `${texts[currentLang].type} ${type}`;
+      contentEl.textContent = `${texts[currentLang].content} ${content}`;
+      statusEl.textContent = "";
+      footer.classList.remove("hidden");
+      mainBtn.textContent = texts[currentLang].cancel;
+    }
+
+    function showError(msg) {
+      nfcImage.src = "error.png";
+      statusEl.textContent = msg;
+      uidEl.textContent = "";
+      typeEl.textContent = "";
+      contentEl.textContent = "";
+      mainBtn.textContent = texts[currentLang].back;
+    }
+
+    mainBtn.onclick = () => {
+      if (mainBtn.textContent === texts[currentLang].skip) {
+        showMenu("—", texts[currentLang].unknown, texts[currentLang].unknown);
+      } else if (mainBtn.textContent === texts[currentLang].back) {
+        resetScreen();
+      } else {
+        resetScreen();
+      }
+    };
+
+    function resetScreen() {
+      footer.classList.add("hidden");
+      nfcImage.src = "nfc.png";
+      uidEl.textContent = "";
+      typeEl.textContent = "";
+      contentEl.textContent = "";
+      mainBtn.textContent = texts[currentLang].skip;
+      statusEl.textContent = texts[currentLang].tap;
+      startNFC();
+    }
+
+    startNFC();
+  </script>
+</body>
 </html>
