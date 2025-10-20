@@ -5,65 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>snd</title>
 <style>
-html,body{
-  margin:0;
-  padding:0;
-  background:black;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  touch-action:none;
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
   -webkit-tap-highlight-color: transparent;
 }
-button,input,textarea{outline:none;border:none;}
 </style>
 </head>
 <body>
 <script>
-let url = new URL(window.location.href)
-let t = url.searchParams.get("t")
-let a = new Audio("sound.mp3")
-a.loop = true
-a.volume = 0
+const params = new URLSearchParams(location.search);
+const t = params.get("t");
+const audio = new Audio("sound.mp3");
+audio.loop = true;
+audio.volume = 0;
 
-function playWithEQ() {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)()
-  const src = ctx.createMediaElementSource(a)
-  const eq = ctx.createBiquadFilter()
-  eq.type = "peaking"
-  eq.frequency.value = 2000
-  eq.gain.value = 6
-  src.connect(eq)
-  eq.connect(ctx.destination)
-  ctx.resume()
-  a.play()
-}
-
-function toMs(v){
-  if(!v)return 0
-  if(v.endsWith("s"))return parseFloat(v)*1000
-  if(v.includes(":")){
-    let now=new Date()
-    let [h,m,s]=v.split(":").map(Number)
-    if(s===undefined)s=0
-    let target=new Date()
-    target.setHours(h,m,s,0)
-    if(target<now)target.setDate(target.getDate()+1)
-    return target-now
+function parseTime(v) {
+  if (!v) return 0;
+  if (v.endsWith("s")) return parseFloat(v) * 1000;
+  if (v.includes(":")) {
+    const now = new Date();
+    const [h, m, s] = v.split(":").map(Number);
+    const target = new Date();
+    target.setHours(h, m || 0, s || 0, 0);
+    if (target <= now) target.setDate(target.getDate() + 1);
+    return target - now;
   }
-  return 0
+  return 0;
 }
 
-document.body.addEventListener("click",()=>{
-  playWithEQ()
-  let delay = toMs(t)
-  setTimeout(()=>{
-    a.pause()
-    a.currentTime = 0
-    a.volume = 1
-    a.play()
-  },delay)
-},{once:true})
+function setupEQ() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const src = ctx.createMediaElementSource(audio);
+  const eq = ctx.createBiquadFilter();
+  eq.type = "peaking";
+  eq.frequency.value = 2000;
+  eq.gain.value = 6;
+  src.connect(eq);
+  eq.connect(ctx.destination);
+  ctx.resume();
+  return ctx;
+}
+
+document.body.addEventListener("click", async () => {
+  const ctx = setupEQ();
+  await audio.play();
+
+  const delay = parseTime(t);
+  console.log("Delay:", delay, "ms");
+
+  setTimeout(() => {
+    audio.pause();
+    audio.currentTime = 0;
+    audio.volume = 1;
+    audio.play();
+  }, delay);
+}, { once: true });
 </script>
 </body>
 </html>
