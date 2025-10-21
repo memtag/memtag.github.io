@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 Not Found</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      color: #0ff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 6rem;
+      text-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+      margin: 0;
+    }
+    p {
+      font-size: 1.5rem;
+      text-shadow: 0 0 10px #0ff;
+    }
+    a {
+      color: #0ff;
+      border: 2px solid #0ff;
+      padding: 10px 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      text-shadow: 0 0 10px #0ff;
+      transition: 0.2s;
+    }
+    a:hover {
+      background: #0ff;
+      color: #000;
+      box-shadow: 0 0 20px #0ff;
+    }
+    .lang-switch {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+    }
+    select {
+      background: #000;
+      color: #0ff;
+      border: 1px solid #0ff;
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="lang-switch">
+    <select id="langSelect">
+      <option value="en">EN</option>
+      <option value="uk">UA</option>
+      <option value="ru">RU</option>
+    </select>
+  </div>
+
+  <h1 id="title">404</h1>
+  <p id="text">Page not found</p>
+  <a href="/" id="homeLink">Go home</a>
+
+  <script>
+    const translations = {
+      en: {
+        text: "Page not found",
+        homeLink: "Go home"
+      },
+      uk: {
+        text: "Сторінку не знайдено",
+        homeLink: "На головну"
+      },
+      ru: {
+        text: "Страница не найдена",
+        homeLink: "На главную"
+      }
+    };
+
+    const langSelect = document.getElementById('langSelect');
+    const text = document.getElementById('text');
+    const homeLink = document.getElementById('homeLink');
+
+    function setLang(lang) {
+      const t = translations[lang] || translations.en;
+      text.textContent = t.text;
+      homeLink.textContent = t.homeLink;
+      langSelect.value = lang;
+    }
+
+    // Автоматичне визначення мови браузера
+    const browserLang = navigator.language.slice(0, 2);
+    if (translations[browserLang]) {
+      setLang(browserLang);
+    } else {
+      setLang('en');
+    }
+
+    langSelect.addEventListener('change', e => setLang(e.target.value));
+  </script>
+</body>
+</html>
