@@ -5,24 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>404 Not Found</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      height: 100vh;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #010101 0%, #000 100%);
+      color: #0ff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      top: -40px; /* 👈 піднято вище */
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle at center, #020202 0%, #000 100%);
-      color: #0ff;
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      overflow: hidden;
-      animation: fadeInBg 2s ease-in-out;
+      height: 100%;
+      animation: fadeIn 2s ease-in-out;
     }
 
-    @keyframes fadeInBg {
-      from { background-color: #000; opacity: 0; }
-      to { opacity: 1; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     h1 {
@@ -35,16 +51,8 @@
     }
 
     @keyframes appear404 {
-      0% {
-        opacity: 0;
-        transform: scale(0.5) translateY(-100px);
-        filter: blur(10px);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-        filter: blur(0);
-      }
+      0% { opacity: 0; transform: scale(0.5) translateY(-100px); filter: blur(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
     }
 
     @keyframes neonPulse {
@@ -101,21 +109,62 @@
   </style>
 </head>
 <body>
-  <h1>404</h1>
-  <p id="message">Page not found</p>
-  <a href="/" id="home">Go home</a>
+  <canvas id="particles"></canvas>
+
+  <div class="content">
+    <h1>404</h1>
+    <p id="message">Page not found</p>
+    <a href="/" id="home">Go home</a>
+  </div>
 
   <script>
+    // --- Автоматичне визначення мови ---
     const translations = {
       en: { message: "Page not found", home: "Go home" },
       uk: { message: "Сторінку не знайдено", home: "На головну" },
       ru: { message: "Страница не найдена", home: "На главную" }
     };
-
     const lang = navigator.language.slice(0, 2);
     const t = translations[lang] || translations.en;
     document.getElementById("message").textContent = t.message;
     document.getElementById("home").textContent = t.home;
+
+    // --- Неонові частинки ---
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+    let w, h;
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    const particles = Array.from({ length: 80 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 2 + 0.5,
+      dx: (Math.random() - 0.5) * 0.6,
+      dy: (Math.random() - 0.5) * 0.6,
+      alpha: Math.random() * 0.8 + 0.2
+    }));
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,255,255,${p.alpha})`;
+        ctx.fill();
+
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > w) p.dx *= -1;
+        if (p.y < 0 || p.y > h) p.dy *= -1;
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
   </script>
 </body>
 </html>
