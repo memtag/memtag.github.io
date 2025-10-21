@@ -1,142 +1,168 @@
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="user-scalable=no">
-<title>volumeshader_bm</title>
-<style>
-body {
-    background: #131115;
-    overflow: hidden;
-    margin: 0;
-}
-#c1 {
-    position: fixed;
-    left: 0px;
-    top: 0px;
-}
-#main {
-    transform-origin: 0px 0px;
-    position: fixed;
-    left: 0px;
-    top: 0px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="user-scalable=no">
+    <title>volumeshader_bm</title>
+    <style>
+        body { background: #131115; }
+        #c1 { position: fixed; left: 0; top: 0; background: #fbf7fe; }
+        #main { transform-origin: 0 0; position: fixed; left: 0; top: 0; }
+    </style>
 </head>
-<body>
+<body style="overflow:hidden">
 <div id="main">
-<canvas id="c1" width="1024" height="1024"></canvas>
+    <canvas id="c1" width="1024" height="1024">
+        <span>不支持canvas浏览器</span>
+    </canvas>
 </div>
+
 <script>
-var cx, cy;
-var glposition, glright, glforward, glup, glorigin, glx, gly, gllen;
-var canvas, gl;
-var t1 = new Date().getTime();
-var mx=0, my=0, mx1=0, my1=0, lasttimen=0;
-var ml=0, mr=0, mm=0;
-var len = 1.6;
-var ang1 = 2.8;
-var ang2 = 0.4;
-var cenx = 0.0, ceny = 0.0, cenz = 0.0;
-
-// Дуже щільний KERNEL з 15 ітераціями
-var KERNEL = "float kernal(vec3 ver){\n" +
-"   vec3 a = ver;\n" +
-"   float b,c,d,e;\n" +
-"   for(int i=0;i<15;i++){\n" +
-"       b=length(a);\n" +
-"       c=atan(a.y,a.x)*32.0;\n" +
-"       d=acos(a.z/b)*32.0;\n" +
-"       b=pow(b,32.0);\n" +
-"       a=vec3(b*sin(d)*cos(c),b*sin(d)*sin(c),b*cos(d))+ver;\n" +
-"       if(b>6.0){ break; }\n" +
-"   }\n" +
-"   return 4.0-a.x*a.x-a.y*a.y-a.z*a.z;\n" +
-"}";
-
-function ontimer(){ ang1+=0.01; draw(); window.requestAnimationFrame(ontimer); }
-
-// --- Події миші та сенсора ---
-document.addEventListener("mousedown", function(ev){ var e=ev||event; if(e.button==0) ml=1; if(e.button==2) mr=1; mx=e.clientX; my=e.clientY; }, false);
-document.addEventListener("mouseup", function(ev){ var e=ev||event; if(e.button==0) ml=0; if(e.button==2) mr=0; }, false);
-document.addEventListener("mousemove", function(ev){
-    var e=ev||event;
-    if(ml==1){ ang1+=(e.clientX-mx)*0.002; ang2+=(e.clientY-my)*0.002; if(e.clientX!=mx||e.clientY!=my) mm=1;}
-    if(mr==1){
-        var l=len*4.0/(cx+cy);
-        cenx+=l*(-(e.clientX-mx)*Math.sin(ang1)-(e.clientY-my)*Math.sin(ang2)*Math.cos(ang1));
-        ceny+=l*((e.clientY-my)*Math.cos(ang2));
-        cenz+=l*((e.clientX-mx)*Math.cos(ang1)-(e.clientY-my)*Math.sin(ang2)*Math.sin(ang1));
-        if(e.clientX!=mx||e.clientY!=my) mm=1;
-    }
-    mx=e.clientX; my=e.clientY;
-}, false);
-document.addEventListener("mousewheel", function(ev){ ev.preventDefault(); var e=ev||event; len*=Math.exp(-0.001*e.wheelDelta); }, false);
-
-// --- Клавіші та сенсор ---
-document.addEventListener("touchstart", function(ev){
-    var n=ev.touches.length;
-    if(n==1){ var e=ev.touches[0]; mx=e.clientX; my=e.clientY; }
-    else if(n==2){ var e=ev.touches[0]; mx=e.clientX; my=e.clientY; e=ev.touches[1]; mx1=e.clientX; my1=e.clientY; }
-    lasttimen=n;
-}, false);
-document.addEventListener("touchend", function(ev){
-    var n=ev.touches.length;
-    if(n==1){ var e=ev.touches[0]; mx=e.clientX; my=e.clientY; }
-    else if(n==2){ var e=ev.touches[0]; mx=e.clientX; my=e.clientY; e=ev.touches[1]; mx1=e.clientX; my1=e.clientY; }
-    lasttimen=n;
-}, false);
-document.addEventListener("touchmove", function(ev){
-    ev.preventDefault();
-    var n=ev.touches.length;
-    if(n==1&&lasttimen==1){ var e=ev.touches[0]; ang1+=(e.clientX-mx)*0.002; ang2+=(e.clientY-my)*0.002; mx=e.clientX; my=e.clientY; }
-    else if(n==2){
-        var e=ev.touches[0], e1=ev.touches[1];
-        var l=len*2.0/(cx+cy), l1;
-        cenx += l*(-(e.clientX+e1.clientX-mx-mx1)*Math.sin(ang1)-(e.clientY+e1.clientY-my-my1)*Math.sin(ang2)*Math.cos(ang1));
-        ceny += l*((e.clientY+e1.clientY-my-my1)*Math.cos(ang2));
-        cenz += l*((e.clientX+e1.clientX-mx-mx1)*Math.cos(ang1)-(e.clientY+e1.clientY-my-my1)*Math.sin(ang2)*Math.sin(ang1));
-        l1=Math.sqrt((mx-mx1)*(mx-mx1)+(my-my1)*(my-my1)+1.0);
-        mx=e.clientX; my=e.clientY; mx1=e1.clientX; my1=e1.clientY;
-        l=Math.sqrt((mx-mx1)*(mx-mx1)+(my-my1)*(my-my1)+1.0);
-        len*=l1/l;
-    }
-    lasttimen=n;
-}, false);
-
-document.oncontextmenu=function(event){ if(mm==1) event.preventDefault(); };
-
-function draw(){
-    gl.uniform1f(glx, cx*2.0/(cx+cy));
-    gl.uniform1f(gly, cy*2.0/(cx+cy));
-
-    // Малюємо кілька копій головної фігури
-    for(var fx=-0.8; fx<=0.8; fx+=0.4){
-        for(var fy=-0.8; fy<=0.8; fy+=0.4){
-            gl.uniform1f(gllen, len*0.25); // зменшена довжина для внутрішніх копій
-            gl.uniform3f(glorigin, len*Math.cos(ang1)*Math.cos(ang2)+cenx+fx, len*Math.sin(ang2)+ceny+fy, len*Math.sin(ang1)*Math.cos(ang2)+cenz);
-            gl.uniform3f(glright, Math.sin(ang1),0,-Math.cos(ang1));
-            gl.uniform3f(glup, -Math.sin(ang2)*Math.cos(ang1),Math.cos(ang2),-Math.sin(ang2)*Math.sin(ang1));
-            gl.uniform3f(glforward, -Math.cos(ang1)*Math.cos(ang2),-Math.sin(ang2),-Math.sin(ang1)*Math.cos(ang2));
-            gl.drawArrays(gl.TRIANGLES,0,6);
+    // --- Параметри для камери та моделі ---
+    var cx, cy, canvas, gl;
+    var glposition, glright, glforward, glup, glorigin, glx, gly, gllen;
+    var date = new Date(), t1 = date.getTime();
+    var ang1 = 2.8, ang2 = 0.4, len = 1.6;
+    var cenx = 0, ceny = 0, cenz = 0;
+    var ml = 0, mr = 0, mm = 0;
+    var mx = 0, my = 0, mx1 = 0, my1 = 0, lasttimen = 0;
+    var KERNEL = `float kernal(vec3 ver){
+        vec3 a;
+        float b,c,d,e;
+        a=ver;
+        for(int i=0;i<5;i++){
+            b=length(a);
+            c=atan(a.y,a.x)*8.0;
+            e=1.0/b;
+            d=acos(a.z/b)*8.0;
+            b=pow(b,8.0);
+            a=vec3(b*sin(d)*cos(c),b*sin(d)*sin(c),b*cos(d))+ver;
+            if(b>6.0){ break; }
         }
+        return 4.0-a.x*a.x-a.y*a.y-a.z*a.z;
+    }`;
+
+    function ontimer() {
+        ang1 += 0.01;
+        draw();
+        window.requestAnimationFrame(ontimer);
     }
-    gl.finish();
-}
 
-window.onresize=window.onload=function(){
-    cx=document.body.clientWidth; cy=document.body.clientHeight;
-    if(cx>cy) cx=cy; else cy=cx;
-    document.getElementById("main").style.width="1024px";
-    document.getElementById("main").style.height="1024px";
-    document.getElementById("main").style.transform="scale("+cx/1024+","+cy/1024+")";
-};
+    // --- Обробка миші та сенсора ---
+    document.addEventListener("mousedown", function(ev){
+        if(ev.button==0) ml=1, mm=0;
+        if(ev.button==2) mr=1, mm=0;
+        mx=ev.clientX; my=ev.clientY;
+    });
+    document.addEventListener("mouseup", function(ev){
+        if(ev.button==0) ml=0;
+        if(ev.button==2) mr=0;
+    });
+    document.addEventListener("mousemove", function(ev){
+        if(ml==1){ ang1 += (ev.clientX-mx)*0.002; ang2 += (ev.clientY-my)*0.002; if(ev.clientX!=mx || ev.clientY!=my) mm=1; }
+        if(mr==1){ 
+            var l=len*4/(cx+cy);
+            cenx += l*(-(ev.clientX-mx)*Math.sin(ang1)-(ev.clientY-my)*Math.sin(ang2)*Math.cos(ang1));
+            ceny += l*((ev.clientY-my)*Math.cos(ang2));
+            cenz += l*((ev.clientX-mx)*Math.cos(ang1)-(ev.clientY-my)*Math.sin(ang2)*Math.sin(ang1));
+            if(ev.clientX!=mx || ev.clientY!=my) mm=1;
+        }
+        mx=ev.clientX; my=ev.clientY;
+    });
 
-window.onload=function(){
-    cx=document.body.clientWidth; cy=document.body.clientHeight;
-    if(cx>cy) cx=cy; else cy=cx;
-    document.getElementById("main").style.width="1024px";
-    document.getElementById("main").style.height="1024px";
-    document.getElementById("main").style.transform="scale("+cx/1024+","+cy/1024+")";
+    document.addEventListener("mousewheel", function(ev){ ev.preventDefault(); len *= Math.exp(-0.001*ev.wheelDelta); }, false);
 
-    var positions=[-1.0,-1.0,0.0,1.0,-1.0,0.0,1.0,1.0,0.0,-1.0,-1.0,0.0,1.0,1.0,0.0,-1.0,1.0,0.0];
-    var VSHADER_SOURCE = "#version 100\nprecision highp float;\nattribute vec4 position;\nvarying vec3 dir, localdir;\nuniform vec3 right, forward, up, origin;\nuniform float x,y;\nvoid main(){gl_Position=position;
+    document.addEventListener("touchstart", function(ev){
+        var n=ev.touches.length;
+        if(n==1){ mx=ev.touches[0].clientX; my=ev.touches[0].clientY; }
+        else if(n==2){ mx=ev.touches[0].clientX; my=ev.touches[0].clientY; mx1=ev.touches[1].clientX; my1=ev.touches[1].clientY; }
+        lasttimen=n;
+    });
+    document.addEventListener("touchend", function(ev){ lasttimen=ev.touches.length; });
+    document.addEventListener("touchmove", function(ev){
+        ev.preventDefault();
+        var n=ev.touches.length;
+        if(n==1 && lasttimen==1){ ang1 += (ev.touches[0].clientX-mx)*0.002; ang2 += (ev.touches[0].clientY-my)*0.002; mx=ev.touches[0].clientX; my=ev.touches[0].clientY; }
+        else if(n==2){
+            var o0=ev.touches[0], o1=ev.touches[1];
+            var l=len*2/(cx+cy), l1=Math.sqrt((mx-mx1)*(mx-mx1)+(my-my1)*(my-my1)+1.0);
+            cenx += l*(-(o0.clientX+o1.clientX-mx-mx1)*Math.sin(ang1)-(o0.clientY+o1.clientY-my-my1)*Math.sin(ang2)*Math.cos(ang1));
+            ceny += l*((o0.clientY+o1.clientY-my-my1)*Math.cos(ang2));
+            cenz += l*((o0.clientX+o1.clientX-mx-mx1)*Math.cos(ang1)-(o0.clientY+o1.clientY-my-my1)*Math.sin(ang2)*Math.sin(ang1));
+            var l2=Math.sqrt((o0.clientX-o1.clientX)*(o0.clientX-o1.clientX)+(o0.clientY-o1.clientY)*(o0.clientY-o1.clientY)+1.0);
+            len *= l1/l2;
+            mx=o0.clientX; my=o0.clientY; mx1=o1.clientX; my1=o1.clientY;
+        }
+        lasttimen=n;
+    });
+    document.oncontextmenu=function(event){ if(mm==1) event.preventDefault(); };
+
+    function draw(){
+        var t2=new Date().getTime();
+        t1=t2;
+        gl.uniform1f(glx, cx*2/(cx+cy));
+        gl.uniform1f(gly, cy*2/(cx+cy));
+        gl.uniform1f(gllen, len);
+        gl.uniform3f(glorigin, len*Math.cos(ang1)*Math.cos(ang2)+cenx, len*Math.sin(ang2)+ceny, len*Math.sin(ang1)*Math.cos(ang2)+cenz);
+        gl.uniform3f(glright, Math.sin(ang1),0,-Math.cos(ang1));
+        gl.uniform3f(glup, -Math.sin(ang2)*Math.cos(ang1), Math.cos(ang2), -Math.sin(ang2)*Math.sin(ang1));
+        gl.uniform3f(glforward, -Math.cos(ang1)*Math.cos(ang2), -Math.sin(ang2), -Math.sin(ang1)*Math.cos(ang2));
+        gl.drawArrays(gl.TRIANGLES,0,6);
+        gl.finish();
+    }
+
+    function setupCanvas(){
+        cx=document.body.clientWidth; cy=document.body.clientHeight;
+        if(cx>cy) cx=cy; else cy=cx;
+        document.getElementById("main").style.width="1024px";
+        document.getElementById("main").style.height="1024px";
+        document.getElementById("main").style.transform="scale("+cx/1024+","+cy/1024+")";
+    }
+
+    window.onresize=setupCanvas;
+
+    window.onload=function(){
+        setupCanvas();
+        canvas=document.getElementById('c1');
+        gl=canvas.getContext('webgl');
+
+        var positions=[-1,-1,0,1,-1,0,1,1,0,-1,-1,0,1,1,0,-1,1,0];
+        var VSHADER_SOURCE="#version 100\nprecision highp float;attribute vec4 position;varying vec3 dir,localdir;uniform vec3 right,forward,up,origin;uniform float x,y;void main(){gl_Position=position;dir=forward+right*position.x*x+up*position.y*y;localdir.x=position.x*x;localdir.y=position.y*y;localdir.z=-1.0;}";
+        var FSHADER_SOURCE="#version 100\n#define PI 3.14159265358979324\n#define M_L 0.3819660113\n#define M_R 0.6180339887\n#define MAXR 8\n#define SOLVER 8\nprecision highp float;float kernal(vec3 ver);uniform vec3 right,forward,up,origin;varying vec3 dir,localdir;uniform float len;vec3 ver;int sign;float v,v1,v2;float r1,r2,r3,r4,m1,m2,m3,m4;vec3 n,reflect;const float step=0.002;vec3 color;void main(){color=vec3(0.0);sign=0;v1=kernal(origin+dir*(step*len));v2=kernal(origin);for(int k=2;k<1002;k++){ver=origin+dir*(step*len*float(k));v=kernal(ver);}gl_FragColor=vec4(color,1.0);}";
+        
+        var vertshader=gl.createShader(gl.VERTEX_SHADER);
+        var fragshader=gl.createShader(gl.FRAGMENT_SHADER);
+        var shaderProgram=gl.createProgram();
+        gl.shaderSource(vertshader,VSHADER_SOURCE); gl.compileShader(vertshader);
+        gl.shaderSource(fragshader,FSHADER_SOURCE+KERNEL); gl.compileShader(fragshader);
+        gl.attachShader(shaderProgram,vertshader); gl.attachShader(shaderProgram,fragshader);
+        gl.linkProgram(shaderProgram); gl.useProgram(shaderProgram);
+
+        glposition=gl.getAttribLocation(shaderProgram,'position');
+        glright=gl.getUniformLocation(shaderProgram,'right');
+        glforward=gl.getUniformLocation(shaderProgram,'forward');
+        glup=gl.getUniformLocation(shaderProgram,'up');
+        glorigin=gl.getUniformLocation(shaderProgram,'origin');
+        glx=gl.getUniformLocation(shaderProgram,'x');
+        gly=gl.getUniformLocation(shaderProgram,'y');
+        gllen=gl.getUniformLocation(shaderProgram,'len');
+
+        var buffer=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+        gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(positions),gl.STATIC_DRAW);
+        gl.vertexAttribPointer(glposition,3,gl.FLOAT,false,0,0);
+        gl.enableVertexAttribArray(glposition);
+
+        gl.viewport(0,0,1024,1024);
+        draw();
+        window.requestAnimationFrame(ontimer);
+
+        // --- Автозапуск звуку за параметром URL ---
+        const params = new URLSearchParams(window.location.search);
+        const soundFile = params.get('s');
+        if(soundFile){
+            const audio = new Audio(`${soundFile}/sound.mp3`);
+            audio.play().catch(e=>console.log("Autoplay blocked", e));
+        }
+    };
+</script>
+</body>
+</html>
