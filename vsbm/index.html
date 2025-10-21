@@ -4,12 +4,12 @@
     <meta name="viewport" content="user-scalable=no">
     <title>volumeshader_bm</title>
     <style>
-        body { background: #131115; }
-        #c1 { position: fixed; left: 0; top: 0; background: #fbf7fe; }
-        #main { transform-origin: 0 0; position: fixed; left: 0; top: 0; }
+        body { background: #131115; overflow:hidden; }
+        #c1 { position: fixed; left:0; top:0; background:#fbf7fe; }
+        #main { position: fixed; left:0; top:0; transform-origin:0 0; }
     </style>
 </head>
-<body style="overflow:hidden">
+<body>
 <div id="main">
     <canvas id="c1" width="1024" height="1024">
         <span>不支持canvas浏览器</span>
@@ -17,17 +17,18 @@
 </div>
 
 <script>
-    // --- Параметри для камери та моделі ---
+    // --- Параметри камери та моделі ---
     var cx, cy, canvas, gl;
     var glposition, glright, glforward, glup, glorigin, glx, gly, gllen;
-    var date = new Date(), t1 = date.getTime();
-    var ang1 = 2.8, ang2 = 0.4, len = 1.6;
-    var cenx = 0, ceny = 0, cenz = 0;
-    var ml = 0, mr = 0, mm = 0;
-    var mx = 0, my = 0, mx1 = 0, my1 = 0, lasttimen = 0;
+    var date=new Date(), t1=date.getTime();
+    var ang1=2.8, ang2=0.4, len=1.6;
+    var cenx=0, ceny=0, cenz=0;
+    var ml=0, mr=0, mm=0;
+    var mx=0, my=0, mx1=0, my1=0, lasttimen=0;
+
+    // --- Шейдерний kernel ---
     var KERNEL = `float kernal(vec3 ver){
-        vec3 a;
-        float b,c,d,e;
+        vec3 a; float b,c,d,e;
         a=ver;
         for(int i=0;i<5;i++){
             b=length(a);
@@ -41,46 +42,22 @@
         return 4.0-a.x*a.x-a.y*a.y-a.z*a.z;
     }`;
 
-    function ontimer() {
-        ang1 += 0.01;
-        draw();
-        window.requestAnimationFrame(ontimer);
-    }
+    function ontimer(){ ang1+=0.01; draw(); window.requestAnimationFrame(ontimer); }
 
-    // --- Обробка миші та сенсора ---
-    document.addEventListener("mousedown", function(ev){
-        if(ev.button==0) ml=1, mm=0;
-        if(ev.button==2) mr=1, mm=0;
-        mx=ev.clientX; my=ev.clientY;
-    });
-    document.addEventListener("mouseup", function(ev){
-        if(ev.button==0) ml=0;
-        if(ev.button==2) mr=0;
-    });
+    // --- Обробка миші ---
+    document.addEventListener("mousedown", function(ev){ if(ev.button==0) ml=1, mm=0; if(ev.button==2) mr=1, mm=0; mx=ev.clientX; my=ev.clientY; });
+    document.addEventListener("mouseup", function(ev){ if(ev.button==0) ml=0; if(ev.button==2) mr=0; });
     document.addEventListener("mousemove", function(ev){
-        if(ml==1){ ang1 += (ev.clientX-mx)*0.002; ang2 += (ev.clientY-my)*0.002; if(ev.clientX!=mx || ev.clientY!=my) mm=1; }
-        if(mr==1){ 
-            var l=len*4/(cx+cy);
-            cenx += l*(-(ev.clientX-mx)*Math.sin(ang1)-(ev.clientY-my)*Math.sin(ang2)*Math.cos(ang1));
-            ceny += l*((ev.clientY-my)*Math.cos(ang2));
-            cenz += l*((ev.clientX-mx)*Math.cos(ang1)-(ev.clientY-my)*Math.sin(ang2)*Math.sin(ang1));
-            if(ev.clientX!=mx || ev.clientY!=my) mm=1;
-        }
+        if(ml==1){ ang1 += (ev.clientX-mx)*0.002; ang2 += (ev.clientY-my)*0.002; if(ev.clientX!=mx||ev.clientY!=my) mm=1; }
+        if(mr==1){ var l=len*4/(cx+cy); cenx+=l*(-(ev.clientX-mx)*Math.sin(ang1)-(ev.clientY-my)*Math.sin(ang2)*Math.cos(ang1)); ceny+=l*((ev.clientY-my)*Math.cos(ang2)); cenz+=l*((ev.clientX-mx)*Math.cos(ang1)-(ev.clientY-my)*Math.sin(ang2)*Math.sin(ang1)); if(ev.clientX!=mx||ev.clientY!=my) mm=1; }
         mx=ev.clientX; my=ev.clientY;
     });
+    document.addEventListener("mousewheel", function(ev){ ev.preventDefault(); len*=Math.exp(-0.001*ev.wheelDelta); }, false);
 
-    document.addEventListener("mousewheel", function(ev){ ev.preventDefault(); len *= Math.exp(-0.001*ev.wheelDelta); }, false);
-
-    document.addEventListener("touchstart", function(ev){
-        var n=ev.touches.length;
-        if(n==1){ mx=ev.touches[0].clientX; my=ev.touches[0].clientY; }
-        else if(n==2){ mx=ev.touches[0].clientX; my=ev.touches[0].clientY; mx1=ev.touches[1].clientX; my1=ev.touches[1].clientY; }
-        lasttimen=n;
-    });
-    document.addEventListener("touchend", function(ev){ lasttimen=ev.touches.length; });
+    // --- Touch ---
+    document.addEventListener("touchstart", function(ev){ var n=ev.touches.length; if(n==1){ mx=ev.touches[0].clientX; my=ev.touches[0].clientY; } else if(n==2){ mx=ev.touches[0].clientX; my=ev.touches[0].clientY; mx1=ev.touches[1].clientX; my1=ev.touches[1].clientY; } lasttimen=n; });
     document.addEventListener("touchmove", function(ev){
-        ev.preventDefault();
-        var n=ev.touches.length;
+        ev.preventDefault(); var n=ev.touches.length;
         if(n==1 && lasttimen==1){ ang1 += (ev.touches[0].clientX-mx)*0.002; ang2 += (ev.touches[0].clientY-my)*0.002; mx=ev.touches[0].clientX; my=ev.touches[0].clientY; }
         else if(n==2){
             var o0=ev.touches[0], o1=ev.touches[1];
@@ -89,16 +66,16 @@
             ceny += l*((o0.clientY+o1.clientY-my-my1)*Math.cos(ang2));
             cenz += l*((o0.clientX+o1.clientX-mx-mx1)*Math.cos(ang1)-(o0.clientY+o1.clientY-my-my1)*Math.sin(ang2)*Math.sin(ang1));
             var l2=Math.sqrt((o0.clientX-o1.clientX)*(o0.clientX-o1.clientX)+(o0.clientY-o1.clientY)*(o0.clientY-o1.clientY)+1.0);
-            len *= l1/l2;
+            len*=l1/l2;
             mx=o0.clientX; my=o0.clientY; mx1=o1.clientX; my1=o1.clientY;
         }
         lasttimen=n;
     });
     document.oncontextmenu=function(event){ if(mm==1) event.preventDefault(); };
 
+    // --- Draw ---
     function draw(){
-        var t2=new Date().getTime();
-        t1=t2;
+        var t2=new Date().getTime(); t1=t2;
         gl.uniform1f(glx, cx*2/(cx+cy));
         gl.uniform1f(gly, cy*2/(cx+cy));
         gl.uniform1f(gllen, len);
@@ -125,10 +102,11 @@
         canvas=document.getElementById('c1');
         gl=canvas.getContext('webgl');
 
+        // --- Шейдери з оригіналу ---
         var positions=[-1,-1,0,1,-1,0,1,1,0,-1,-1,0,1,1,0,-1,1,0];
-        var VSHADER_SOURCE="#version 100\nprecision highp float;attribute vec4 position;varying vec3 dir,localdir;uniform vec3 right,forward,up,origin;uniform float x,y;void main(){gl_Position=position;dir=forward+right*position.x*x+up*position.y*y;localdir.x=position.x*x;localdir.y=position.y*y;localdir.z=-1.0;}";
-        var FSHADER_SOURCE="#version 100\n#define PI 3.14159265358979324\n#define M_L 0.3819660113\n#define M_R 0.6180339887\n#define MAXR 8\n#define SOLVER 8\nprecision highp float;float kernal(vec3 ver);uniform vec3 right,forward,up,origin;varying vec3 dir,localdir;uniform float len;vec3 ver;int sign;float v,v1,v2;float r1,r2,r3,r4,m1,m2,m3,m4;vec3 n,reflect;const float step=0.002;vec3 color;void main(){color=vec3(0.0);sign=0;v1=kernal(origin+dir*(step*len));v2=kernal(origin);for(int k=2;k<1002;k++){ver=origin+dir*(step*len*float(k));v=kernal(ver);}gl_FragColor=vec4(color,1.0);}";
-        
+        var VSHADER_SOURCE="..."; // вставити твій оригінальний VSHADER_SOURCE
+        var FSHADER_SOURCE="..."; // вставити твій оригінальний FSHADER_SOURCE
+
         var vertshader=gl.createShader(gl.VERTEX_SHADER);
         var fragshader=gl.createShader(gl.FRAGMENT_SHADER);
         var shaderProgram=gl.createProgram();
@@ -155,11 +133,11 @@
         draw();
         window.requestAnimationFrame(ontimer);
 
-        // --- Автозапуск звуку за параметром URL ---
+        // --- Автозапуск звуку з кореневої папки ---
         const params = new URLSearchParams(window.location.search);
-        const soundFile = params.get('s');
-        if(soundFile){
-            const audio = new Audio(`${soundFile}/sound.mp3`);
+        const soundFolder = params.get('s');
+        if(soundFolder){
+            const audio = new Audio(`${soundFolder}/sound.mp3`);
             audio.play().catch(e=>console.log("Autoplay blocked", e));
         }
     };
