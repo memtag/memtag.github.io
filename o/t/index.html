@@ -12,8 +12,8 @@ html,body{
   background:#000;
   touch-action:none;
   -webkit-tap-highlight-color:transparent;
-  cursor:default;
   overflow:hidden;
+  cursor:default;
 }
 </style>
 </head>
@@ -24,14 +24,6 @@ function getParam() {
   const match = q.match(/[?&]t=([^&]+)/);
   return match ? decodeURIComponent(match[1]) : '';
 }
-
-const t = getParam();
-const audio = new Audio('../sound.mp3');
-audio.loop = true;
-audio.preload = 'auto';
-audio.volume = 0;
-
-let ctx, gainNode;
 
 function parseDelay(v){
   if(!v) return 0;
@@ -47,17 +39,46 @@ function parseDelay(v){
   return 0;
 }
 
+const t = getParam();
+const audio = new Audio('../sound.mp3');
+audio.loop = true;
+audio.preload = 'auto';
+audio.volume = 1;
+
+let ctx, gainNode;
+
 function initAudio() {
   ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const src = ctx.createMediaElementSource(audio);
+  const source = ctx.createMediaElementSource(audio);
+
+  const bass = ctx.createBiquadFilter();
+  bass.type = 'lowshelf';
+  bass.frequency.value = 100;
+  bass.gain.value = 10;
+
+  const mid = ctx.createBiquadFilter();
+  mid.type = 'peaking';
+  mid.frequency.value = 1000;
+  mid.Q.value = 1;
+  mid.gain.value = 3;
+
+  const treble = ctx.createBiquadFilter();
+  treble.type = 'highshelf';
+  treble.frequency.value = 6000;
+  treble.gain.value = 5;
+
   gainNode = ctx.createGain();
-  gainNode.gain.value = 0;
-  src.connect(gainNode);
+  gainNode.gain.value = 0; // тиша спочатку
+
+  source.connect(bass);
+  bass.connect(mid);
+  mid.connect(treble);
+  treble.connect(gainNode);
   gainNode.connect(ctx.destination);
 }
 
 function fadeTo(vol, sec=0.3) {
-  if(!gainNode) return;
+  if(!gainNode || !ctx) return;
   const now = ctx.currentTime;
   gainNode.gain.cancelScheduledValues(now);
   gainNode.gain.setValueAtTime(gainNode.gain.value, now);
@@ -68,21 +89,22 @@ document.body.addEventListener('click', async ()=>{
   if(!ctx) initAudio();
   await ctx.resume();
   await audio.play().catch(()=>{});
+
   const delay = parseDelay(t);
   if(delay <= 0) {
     audio.pause();
     audio.currentTime = 0;
-    fadeTo(1, 0.2);
+    fadeTo(1.5, 0.5);
     audio.play();
   } else {
     setTimeout(()=>{
       audio.pause();
       audio.currentTime = 0;
-      fadeTo(1, 0.2);
+      fadeTo(1.5, 0.5);
       audio.play();
     }, delay);
   }
-}, { once: true });
+}, { once:true });
 </script>
 </body>
 </html>
