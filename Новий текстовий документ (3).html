@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Кнопка воспроизведения звука</title>
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f8f8f8;
+    }
+    #playBtn {
+      font-size: 2.5rem;
+      padding: 2rem 4rem;
+      border-radius: 1.5rem;
+      border: none;
+      background: #49aaff;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      transition: background 0.2s;
+    }
+    #playBtn:active {
+      background: #2580bf;
+    }
+  </style>
+</head>
+<body>
+  <button id="playBtn">▶️ Tung Tung Tatata</button>
+  <audio id="audio" src="https://www.myinstants.com/media/sounds/tung-tung-tung-saur-tatata-saur.mp3"></audio>
+  <script>
+    document.getElementById("playBtn").addEventListener("click", function() {
+      const audio = document.getElementById("audio");
+      audio.currentTime = 0;
+      audio.play();
+    });
+  </script>
+</body>
+</html>
