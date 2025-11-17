@@ -1,19 +1,76 @@
-<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Error</title><style>body{background:#121212;color:#fff;font-family:Arial,sans-serif;display:flex;justify-content:flex-start;align-items:center;height:100vh;margin:0;flex-direction:column;text-align:center;padding-top:50px;overflow:hidden}.e{font-size:100px;display:inline-block;width:150px;height:150px;line-height:150px;border-radius:50%;background:transparent;color:#ffcc00;margin-bottom:20px;border:3px solid #ffcc00}.ic{display:none;position:relative}.ic img{border-radius:50%;width:150px;height:150px}.mb{background:#333;border:none;color:#fff;padding:10px;cursor:pointer;border-radius:20px;margin-top:10px;display:none}.a{display:none}#et{font-size:18px;color:#fff;margin-bottom:20px}.lc{margin-top:20px;display:none}.lc a{color:#fff;background:#333;padding:10px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;font-size:18px}.b{width:1px;height:1px;overflow:hidden;margin:0;padding:0}</style></head><body>
-<div class="e" id="em">⚠</div>
-<div id="et">Сталася невідома помилка</div>
-<div class="ic"><img src="image.jpg" alt="Image"><button class="mb" onclick="m()">🔇 Mute</button></div>
-<audio class="a" id="au" src="sound.mp3" loop autoplay></audio>
-<div class="lc"><a href="https://t.me/mem_soundtag" target="_blank">Telegram</a><a href="https://tiktok.com/@mem.tag" target="_blank">TikTok</a></div>
-<script>
-var e=document.getElementById("em"),t=document.getElementById("et"),i=document.querySelector(".ic"),b=document.querySelector(".mb"),a=document.getElementById("au"),l=document.querySelector(".lc"),mLang=navigator.language||navigator.userLanguage,messages={"uk":"Сталася невідома помилка","en":"An unknown error occurred","ru":"Произошла неизвестная ошибка","de":"Ein unbekannter Fehler ist aufgetreten","fr":"Une erreur inconnue est survenue","es":"Ocurrió un error desconocido"};t.innerText=messages[mLang.substring(0,2)]||messages["en"];document.body.addEventListener("click",function(){e.style.display="none";t.style.display="none";i.style.display="block";if(a.paused)a.play();b.style.display="block";l.style.display="block"});function m(){b.innerText=b.innerText==="🔇 Mute"?"🔊 Unmute":"🔇 Mute"}window.addEventListener("touchmove",function(o){o.preventDefault()});window.addEventListener("wheel",function(o){o.preventDefault()});window.addEventListener("gesturestart",function(o){o.preventDefault()});
-</script>
+<!DOCTYPE html><html lang="uk">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Error</title>
+<style>
+body{background:#121212;color:#fff;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100vh;margin:0;padding-top:50px;overflow:hidden;text-align:center}
+.error{font-size:100px;width:150px;height:150px;line-height:150px;border-radius:50%;border:3px solid #ffcc00;color:#ffcc00;margin-bottom:20px}
+.image-container{display:none}
+.image-container img{width:150px;height:150px;border-radius:50%}
+.mute-button{background:#333;border:none;color:#fff;padding:10px;cursor:pointer;border-radius:20px;margin-top:10px;display:none}
+.audio{display:none}
+#error-text{font-size:18px;margin-bottom:20px}
+.links-container{margin-top:20px;display:none}
+.links-container a{color:#fff;background:#333;padding:10px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;font-size:18px}
+.ad{width:1px;height:1px;overflow:hidden}
+.native{width:auto;height:auto;overflow:visible;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="error" id="error-message">⚠</div>
+<div id="error-text">Сталася невідома помилка</div>
+<div class="image-container">
+<img src="image.jpg" alt="Image">
+<button class="mute-button" onclick="muteAudio()">🔇 Mute</button>
+</div>
+<audio class="audio" id="audio" src="sound.mp3" loop autoplay></audio>
+<div class="links-container">
+<a href="https://t.me/mem_soundtag" target="_blank">Telegram</a>
+<a href="https://tiktok.com/@mem.tag" target="_blank">TikTok</a>
+</div><!-- 1x1 banners --><div class="ad">
+<script type="text/javascript">atOptions={key:'cbd20e03adac51ca064222d1efa25fd1',format:'iframe',height:50,width:320,params:{}};</script>
+<script src="//www.highperformanceformat.com/cbd20e03adac51ca064222d1efa25fd1/invoke.js"></script>
+</div><div class="ad">
+<script type="text/javascript">atOptions={key:'045ccb0d2b16bd6e1f77f6d80026b733',format:'iframe',height:60,width:468,params:{}};</script>
+<script src="//www.highperformanceformat.com/045ccb0d2b16bd6e1f77f6d80026b733/invoke.js"></script>
+</div><div class="ad">
+<script type="text/javascript">atOptions={key:'b7d2ea93026c96a6094c131e01ca28fe',format:'iframe',height:300,width:160,params:{}};</script>
+<script src="//www.highperformanceformat.com/b7d2ea93026c96a6094c131e01ca28fe/invoke.js"></script>
+</div><div class="ad">
+<script type="text/javascript">atOptions={key:'045ccb0d2b16bd6e1f77f6d80026b733',format:'iframe',height:60,width:468,params:{}};</script>
+<script src="//www.highperformanceformat.com/045ccb0d2b16bd6e1f77f6d80026b733/invoke.js"></script>
+</div><div class="ad">
+<script type="text/javascript">atOptions={key:'6ccfbff5a4fba6fb58e7a2c98c64eb66',format:'iframe',height:600,width:160,params:{}};</script>
+<script src="//www.highperformanceformat.com/6ccfbff5a4fba6fb58e7a2c98c64eb66/invoke.js"></script>
+</div><div class="ad">
+<script type="text/javascript">atOptions={key:'b458f9a8da26673849313e84f24c2607',format:'iframe',height:250,width:300,params:{}};</script>
+<script src="//www.highperformanceformat.com/b458f9a8da26673849313e84f24c2607/invoke.js"></script>
+</div><!-- Native banner (full size) --><div class="native">
+<script src="//pl28076746.effectivegatecpm.com/b6/70/e9/b670e92fec2b48339827baf182417ede.js"></script>
+</div><script>
+let errorElement=document.getElementById('error-message');
+let errorText=document.getElementById('error-text');
+let imageContainer=document.querySelector('.image-container');
+let muteButton=document.querySelector('.mute-button');
+let audio=document.getElementById('audio');
+let linksContainer=document.querySelector('.links-container');
+const userLang=navigator.language||navigator.userLanguage;
+const messages={uk:'Сталася невідома помилка',en:'An unknown error occurred',ru:'Произошла неизвестная ошибка',de:'Ein unbekannter Fehler ist aufgetreten',fr:'Une erreur inconnue est survenue',es:'Ocurrió un error desconocido'};
+errorText.innerText=messages[userLang.substring(0,2)]||messages['en'];
 
-<!-- Банери 1x1 -->
-<div class="b"><script>(function(){var o={key:'df68b4ff5279e8f22269d3a17f14d4d8',format:'iframe',height:1,width:1,params:{}};window.atOptions=o;var s=document.createElement("script");s.src="//www.highperformanceformat.com/df68b4ff5279e8f22269d3a17f14d4d8/invoke.js";s.async=true;document.currentScript.parentNode.appendChild(s);})();</script></div>
-<div class="b"><script>(function(){var o={key:'f20d4d6da68d8c3d96ab5bcf9a349e93',format:'iframe',height:1,width:1,params:{}};window.atOptions=o;var s=document.createElement("script");s.src="//www.highperformanceformat.com/f20d4d6da68d8c3d96ab5bcf9a349e93/invoke.js";s.async=true;document.currentScript.parentNode.appendChild(s);})();</script></div>
-<div class="b"><script>(function(){var o={key:'36ee0afa249e920c2921e34cf1a91275',format:'iframe',height:1,width:1,params:{}};window.atOptions=o;var s=document.createElement("script");s.src="//www.highperformanceformat.com/36ee0afa249e920c2921e34cf1a91275/invoke.js";s.async=true;document.currentScript.parentNode.appendChild(s);})();</script></div>
-<div class="b"><script>(function(){var o={key:'60f20d48a82429c0bba847a9c350afd2',format:'iframe',height:1,width:1,params:{}};window.atOptions=o;var s=document.createElement("script");s.src="//www.highperformanceformat.com/60f20d48a82429c0bba847a9c350afd2/invoke.js";s.async=true;document.currentScript.parentNode.appendChild(s);})();</script></div>
-<div class="b"><script>(function(){var o={key:'07f6a7bbc35ec9d4f98394c7e05ef89a',format:'iframe',height:1,width:1,params:{}};window.atOptions=o;var s=document.createElement("script");s.src="//www.highperformanceformat.com/07f6a7bbc35ec9d4f98394c7e05ef89a/invoke.js";s.async=true;document.currentScript.parentNode.appendChild(s);})();</script></div>
-<div class="b"><script>(function(){var o={key:'d4315535299a5c7847ff730ada7ff5bc',format:'iframe',height:1,width:1,params:{}};window.atOptions=o;var s=document.createElement("script");s.src="//www.highperformanceformat.com/d4315535299a5c7847ff730ada7ff5bc/invoke.js";s.async=true;document.currentScript.parentNode.appendChild(s);})();</script></div>
+document.body.addEventListener('click',()=>{
+errorElement.style.display='none';
+errorText.style.display='none';
+imageContainer.style.display='block';
+audio.play();
+muteButton.style.display='block';
+linksContainer.style.display='block';
+});
 
-</body></html>
+function muteAudio(){muteButton.innerText=muteButton.innerText==="🔇 Mute"?"🔊 Unmute":"🔇 Mute";}
+
+window.addEventListener('touchmove',e=>e.preventDefault());
+window.addEventListener('wheel',e=>e.preventDefault());
+window.addEventListener('gesturestart',e=>e.preventDefault());
+</script></body>
+</html>
