@@ -72,6 +72,14 @@
             display: inline-block;
             font-size: 18px;
         }
+        .mini-banner {
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -79,35 +87,9 @@
     <div class="error" id="error-message">⚠</div>
     <div id="error-text">Сталася невідома помилка</div>
 
-    <div id="banner1">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : '36ee0afa249e920c2921e34cf1a91275',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/36ee0afa249e920c2921e34cf1a91275/invoke.js"></script>
-    </div>
-
     <div class="image-container">
         <img src="image.jpg" alt="Image">
         <button class="mute-button" onclick="muteAudio()">🔇 Mute</button>
-    </div>
-
-    <div id="banner2" style="margin-top: 20px;">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'f20d4d6da68d8c3d96ab5bcf9a349e93',
-                'format' : 'iframe',
-                'height' : 60,
-                'width' : 468,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/f20d4d6da68d8c3d96ab5bcf9a349e93/invoke.js"></script>
     </div>
 
     <audio class="audio" id="audio" src="sound.mp3" loop autoplay></audio>
@@ -157,6 +139,46 @@
         window.addEventListener('wheel', function(event) { event.preventDefault(); });
         window.addEventListener('gesturestart', function(event) { event.preventDefault(); });
     </script>
+
+    <!-- Банери переміщені в кінець для швидкого завантаження -->
+    <div class="mini-banner">
+        <script type="text/javascript" async>
+            atOptions = {
+                'key' : '36ee0afa249e920c2921e34cf1a91275',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/36ee0afa249e920c2921e34cf1a91275/invoke.js" async></script>
+    </div>
+
+    <div class="mini-banner">
+        <script type="text/javascript" async>
+            atOptions = {
+                'key' : 'f20d4d6da68d8c3d96ab5bcf9a349e93',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/f20d4d6da68d8c3d96ab5bcf9a349e93/invoke.js" async></script>
+    </div>
+
+    <div class="mini-banner">
+        <script type="text/javascript" async>
+            atOptions = {
+                'key' : '60f20d48a82429c0bba847a9c350afd2',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/60f20d48a82429c0bba847a9c350afd2/invoke.js" async></script>
+    </div>
 
 </body>
 </html>
