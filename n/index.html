@@ -1,1 +1,53 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>x</title><style>html,body{margin:0;padding:0;overflow:hidden;background:#000;color:#fff;font-family:sans-serif}#e{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 20px;background:#1976ff;border-radius:12px;cursor:pointer;transition:.2s;z-index:9999;display:none}#c{position:fixed;top:0;left:0;width:100%;height:100%;}</style></head><body><div id="e"></div><div id="c"></div><script>(()=>{let d=document,q=x=>d.getElementById(x),C=q("c"),E=q("e"),u=["//pl28076746.effectivegatecpm.com/b6/70/e9/b670e92fec2b48339827baf182417ede.js","//pl28076746.effectivegatecpm.com/b6/70/e9/b670e92fec2b48339827baf182417ede.js","//pl28076746.effectivegatecpm.com/b6/70/e9/b670e92fec2b48339827baf182417ede.js","//pl28076746.effectivegatecpm.com/b6/70/e9/b670e92fec2b48339827baf182417ede.js"],h=()=>{"ontouchstart"in window?"Торкніться, щоб перезавантажити":"Натисніть, щоб перезавантажити"},L=()=>{E.innerText=h();E.style.display="block"},Z=()=>{E.style.display="none"},R=()=>{let s=d.createElement("script");s.src=u[Math.floor(Math.random()*u.length)];s.onload=()=>{};s.onerror=()=>{};C.appendChild(s.cloneNode(true));C.appendChild(s.cloneNode(true));C.appendChild(s.cloneNode(true));C.appendChild(s.cloneNode(true));};L();function X(){Z();C.innerHTML="";R();}E.onclick=X;C.onclick=X;})();</script></body></html>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Error</title>
+<style>
+body{background:#121212;color:#fff;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100vh;margin:0;padding-top:50px;overflow:hidden;text-align:center}
+.error{font-size:100px;width:150px;height:150px;line-height:150px;border-radius:50%;background:transparent;color:#ffcc00;margin-bottom:20px;border:3px solid #ffcc00;display:inline-block}
+#reload-btn{margin-bottom:20px;padding:10px 20px;border-radius:20px;border:none;background:#333;color:#fff;cursor:pointer;font-size:16px}
+.image-container{display:none;position:relative}
+.image-container img{border-radius:50%;width:150px;height:150px}
+.mute-button{background:#333;border:none;color:#fff;padding:10px;cursor:pointer;border-radius:20px;margin-top:10px;display:none}
+.audio{display:none}
+#error-text{font-size:18px;color:#fff;margin-bottom:20px}
+.links-container{margin-top:20px;display:none}
+.links-container a{color:#fff;background:#333;padding:10px;text-decoration:none;border-radius:5px;margin:5px;font-size:18px;display:inline-block}
+#ad-container{position:relative;width:1px;height:1px;margin-top:20px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#ad-container iframe{position:absolute;top:0;left:0;width:1px;height:1px}
+</style>
+</head>
+<body>
+<div class="error" id="error-message">⚠</div>
+<div id="error-text">Сталася невідома помилка</div>
+<button id="reload-btn">Перезавантажити</button>
+
+<div class="image-container">
+<img src="image.jpg" alt="Image">
+<button class="mute-button" onclick="muteAudio()">🔇 Mute</button>
+</div>
+
+<audio class="audio" id="audio" src="sound.mp3" loop autoplay></audio>
+
+<div class="links-container">
+<a href="https://t.me/mem_soundtag" target="_blank">Telegram</a>
+<a href="https://tiktok.com/@mem.tag" target="_blank">TikTok</a>
+</div>
+
+<div id="ad-container">
+<!-- Банери 1×1 накладені один на один -->
+<script async src="//pl28079343.effectivegatecpm.com/fb2b7e61b1cac213e0cff9f24ecc762c/invoke.js"></script>
+<div id="container-fb2b7e61b1cac213e0cff9f24ecc762c"></div>
+<script>atOptions={key:'cbd20e03adac51ca064222d1efa25fd1',format:'iframe',height:1,width:1,params:{}};</script>
+<script src="//www.highperformanceformat.com/cbd20e03adac51ca064222d1efa25fd1/invoke.js"></script>
+<script>atOptions={key:'045ccb0d2b16bd6e1f77f6d80026b733',format:'iframe',height:1,width:1,params:{}};</script>
+<script src="//www.highperformanceformat.com/045ccb0d2b16bd6e1f77f6d80026b733/invoke.js"></script>
+</div>
+
+<script>
+let e=document.getElementById('error-message'),t=document.getElementById('error-text'),i=document.querySelector('.image-container'),m=document.querySelector('.mute-button'),a=document.getElementById('audio'),l=document.querySelector('.links-container');const u=navigator.language||navigator.userLanguage;const s={'uk':'Сталася невідома помилка','en':'An unknown error occurred','ru':'Произошла неизвестная ошибка','de':'Ein unbekannter Fehler ist aufgetreten','fr':'Une erreur inconnue est survenue','es':'Ocurrió un error desconocido'};t.innerText=s[u.substring(0,2)]||s['en'];function r(){e.style.display='none';t.style.display='none';i.style.display='block';if(a.paused)a.play();m.style.display='block';l.style.display='block'};document.body.addEventListener('click',r);document.getElementById('reload-btn').addEventListener('click',r);function muteAudio(){m.innerText=m.innerText==="🔇 Mute"?"🔊 Unmute":"🔇 Mute"};['touchmove','wheel','gesturestart'].forEach(evt=>window.addEventListener(evt,e=>e.preventDefault()));
+</script>
+</body>
+</html>
