@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>404</title><style>
+html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(circle,#010101 0%,#000 100%);color:#0ff;font-family:'Segoe UI',sans-serif;text-align:center}
+#p{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+.c{position:relative;z-index:2;top:-40px;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;animation:f 2s}
+@keyframes f{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+h1{font-size:8rem;margin:0;text-shadow:0 0 30px #0ff,0 0 80px #0ff;opacity:0;transform:scale(.5) translateY(-100px);animation:a 2s ease-out forwards,b 2.5s infinite alternate 2s}
+@keyframes a{0%{opacity:0;transform:scale(.5) translateY(-100px);filter:blur(10px)}100%{opacity:1;transform:scale(1);filter:blur(0)}}
+@keyframes b{from{text-shadow:0 0 20px #0ff,0 0 60px #0ff}to{text-shadow:0 0 40px #0ff,0 0 120px #0ff}}
+p{font-size:1.6rem;text-shadow:0 0 10px #0ff;margin:20px 0;opacity:0;transform:translateY(30px);animation:c 1.5s ease-out forwards 1.8s}
+@keyframes c{from{opacity:0;transform:translateY(30px);filter:blur(6px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+a{display:inline-block;color:#0ff;border:2px solid #0ff;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:1.2rem;text-shadow:0 0 10px #0ff;box-shadow:0 0 15px #0ff inset,0 0 20px #0ff;transition:.3s;opacity:0;transform:translateY(50px) scale(.9);animation:d 1.5s ease-out forwards 2.5s,e 2.5s infinite alternate 4s}
+@keyframes d{from{opacity:0;transform:translateY(50px) scale(.9);filter:blur(8px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@keyframes e{from{box-shadow:0 0 10px #0ff}to{box-shadow:0 0 25px #0ff,0 0 60px #0ff inset}}
+a:hover{background:#0ff;color:#000;box-shadow:0 0 25px #0ff,0 0 60px #0ff;transform:scale(1.05)}
+#ads{position:fixed;bottom:0;left:0;width:100%;height:60px;z-index:9999;display:flex;flex-direction:column}
+.ad{width:100%;height:10px;overflow:hidden;padding:0;margin:0;line-height:0}
+.ad iframe{width:100%!important;height:10px!important;border:0!important;overflow:hidden!important}
+</style></head>
+<body>
+<canvas id="p"></canvas>
+<div class="c">
+<h1>404</h1>
+<p id="m">Page not found</p>
+<a href="/" id="h">Go home</a>
+</div>
+
+<div id="ads">
+<div class="ad" id="ad1"></div>
+<div class="ad" id="ad2"></div>
+<div class="ad" id="ad3"></div>
+<div class="ad" id="ad4"></div>
+<div class="ad" id="ad5"></div>
+<div class="ad" id="ad6"></div>
+</div>
+
+<script>
+(()=>{const t={en:{m:"Page not found",h:"Go home"},uk:{m:"Сторінку не знайдено",h:"На головну"},ru:{m:"Страница не найдена",h:"На главную"}},l=navigator.language.slice(0,2),x=t[l]||t.en;document.getElementById("m").textContent=x.m;document.getElementById("h").textContent=x.h})();
+(()=>{const c=document.getElementById("p"),k=c.getContext("2d");let w,h;const r=()=>{w=c.width=innerWidth;h=c.height=innerHeight};addEventListener("resize",r);r();const p=Array.from({length:80},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*2+.5,dx:(Math.random()-.5)*.6,dy:(Math.random()-.5)*.6,a:Math.random()*.8+.2}));!function d(){k.clearRect(0,0,w,h);for(const o of p){k.beginPath();k.arc(o.x,o.y,o.r,0,7);k.fillStyle=`rgba(0,255,255,${o.a})`;k.fill();o.x+=o.dx;o.y+=o.dy;if(o.x<0||o.x>w)o.dx*=-1;if(o.y<0||o.y>h)o.dy*=-1}requestAnimationFrame(d)}()})();
+</script>
+
+<!-- Банер 1 -->
+<script>atOptions={'key':'df68b4ff5279e8f22269d3a17f14d4d8','format':'iframe','height':10,'width':300,'params':{}};</script>
+<script src="//www.highperformanceformat.com/df68b4ff5279e8f22269d3a17f14d4d8/invoke.js"></script>
+<script>setTimeout(()=>{ad1.appendChild(document.querySelector("iframe:last-of-type"))},100);</script>
+
+<!-- Банер 2 -->
+<script>atOptions={'key':'f20d4d6da68d8c3d96ab5bcf9a349e93','format':'iframe','height':10,'width':300,'params':{}};</script>
+<script src="//www.highperformanceformat.com/f20d4d6da68d8c3d96ab5bcf9a349e93/invoke.js"></script>
+<script>setTimeout(()=>{ad2.appendChild(document.querySelector("iframe:last-of-type"))},100);</script>
+
+<!-- Банер 3 -->
+<script>atOptions={'key':'d4315535299a5c7847ff730ada7ff5bc','format':'iframe','height':10,'width':300,'params':{}};</script>
+<script src="//www.highperformanceformat.com/d4315535299a5c7847ff730ada7ff5bc/invoke.js"></script>
+<script>setTimeout(()=>{ad3.appendChild(document.querySelector("iframe:last-of-type"))},100);</script>
+
+<!-- Банер 4 -->
+<script>atOptions={'key':'07f6a7bbc35ec9d4f98394c7e05ef89a','format':'iframe','height':10,'width':300,'params':{}};</script>
+<script src="//www.highperformanceformat.com/07f6a7bbc35ec9d4f98394c7e05ef89a/invoke.js"></script>
+<script>setTimeout(()=>{ad4.appendChild(document.querySelector("iframe:last-of-type"))},100);</script>
+
+<!-- Банер 5 -->
+<script>atOptions={'key':'36ee0afa249e920c2921e34cf1a91275','format':'iframe','height':10,'width':300,'params':{}};</script>
+<script src="//www.highperformanceformat.com/36ee0afa249e920c2921e34cf1a91275/invoke.js"></script>
+<script>setTimeout(()=>{ad5.appendChild(document.querySelector("iframe:last-of-type"))},100);</script>
+
+<!-- Банер 6 -->
+<script>atOptions={'key':'60f20d48a82429c0bba847a9c350afd2','format':'iframe','height':10,'width':300,'params':{}};</script>
+<script src="//www.highperformanceformat.com/60f20d48a82429c0bba847a9c350afd2/invoke.js"></script>
+<script>setTimeout(()=>{ad6.appendChild(document.querySelector("iframe:last-of-type"))},100);</script>
+
+</body></html>
