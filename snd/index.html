@@ -1,1 +1,120 @@
-<!DOCTYPE html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MEMTAG SOUNDS</title><style>:root{--gap:16px;--radius:20px;--size:180px;--bwidth:6px;--tcolor:#fff;--bgdark:#0f1724;--bglight:#f0f0f0;--textblur:12px}body{margin:0;font-family:Inter,system-ui,sans-serif;padding:20px;background:var(--bgdark);color:var(--tcolor);transition:all .3s}body.light{background:var(--bglight);color:#111}h1{text-align:center;margin-bottom:20px;font-size:36px;font-weight:800;letter-spacing:1px}h2{text-align:center;margin-top:60px;font-size:16px;color:var(--tcolor)}body.light h2{color:#111}.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(8,1fr)}@media(max-width:1200px){.grid{grid-template-columns:repeat(6,1fr)}}@media(max-width:992px){.grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}.card{position:relative;width:100%;padding-top:100%;border-radius:var(--radius);overflow:hidden;cursor:pointer;background-size:cover;background-position:center;display:block;border:var(--bwidth) solid rgba(255,255,255,0.3);transition:transform .3s,border-color .3s,box-shadow .3s;box-shadow:0 15px 50px rgba(0,0,0,.5)}.card:hover{transform:scale(1.05);border-color:rgba(255,255,255,0.7);box-shadow:0 25px 70px rgba(0,0,0,.6)}.card-inner{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;flex-direction:column}.bg-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4),transparent);transition:background .3s}.text-row{width:100%;text-align:center;padding:12px 0;font-weight:700;font-size:18px;background:rgba(0,0,0,0.5);backdrop-filter:blur(var(--textblur));color:var(--tcolor);transition:all .3s}body.light .text-row{background:rgba(255,255,255,0.5);color:#111}.theme-toggle{position:fixed;top:20px;right:20px;padding:10px 14px;background:#666;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:all .3s}body.light .theme-toggle{background:#ccc;color:#111}.footer{text-align:center;margin-top:50px;font-size:14px;line-height:1.5;color:var(--tcolor)}body.light .footer{color:#111}</style></head><body><h1>MEMTAG SOUNDS</h1><button class="theme-toggle">Тема</button><div class="grid" id="grid"></div><div class="footer">Developed by MEMTAG<br><a href="https://t.me/mem_soundtag" target="_blank">Telegram</a> | <a href="https://www.tiktok.com/@mem.tag" target="_blank">TikTok</a></div><script>!function(){var f=\"snd.txt\",l=600,r=(navigator.language||\"en\").slice(0,2),s={uk:{c:\"Скопійовано\",e:\"Файл snd.txt не знайдено або пустий\"},ru:{c:\"Скопировано\",e:\"Файл snd.txt не найден или пуст\"},en:{c:\"Copied\",e:\"snd.txt not found or empty\"}},t=s[r]||s.en,C=function(a){return a.split(/\\r?\\n/).map(function(x){return x.trim()}).filter(function(x){return x&&x[0]!=\"#\"})},P=function(a){return a.split(\",\").map(function(x){return x.trim()})},B=function(txt,b){try{navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(txt).then(function(){S(b)}):(ta=document.createElement(\"textarea\")).value=txt,document.body.appendChild(ta),ta.select(),document.execCommand(\"copy\"),ta.remove(),S(b)}catch(e){}},S=function(b){b.classList.add(\"show\"),setTimeout(function(){b.classList.remove(\"show\")},1500)},D=function(n,u,i){var a=document.createElement(\"div\");a.className=\"card\";a.style.backgroundImage=\"url(\"+i+\")\";var inner=document.createElement(\"div\");inner.className=\"card-inner\";var overlay=document.createElement(\"div\");overlay.className=\"bg-overlay\";inner.appendChild(overlay);var text=document.createElement(\"div\");text.className=\"text-row\";text.textContent=n;inner.appendChild(text);a.appendChild(inner);var p=null;a.addEventListener(\"pointerdown\",function(){p=setTimeout(function(){p=null,B(u,a)},l)});a.addEventListener(\"pointerup\",function(){p?(clearTimeout(p),p=null,setTimeout(function(){window.open(u,\"_blank\")},250)):window.open(u,\"_blank\")});a.addEventListener(\"pointercancel\",function(){p&&(clearTimeout(p),p=null)});a.addEventListener(\"keydown\",function(e){\"Enter\"===e.key&&(e.shiftKey?B(u,a):window.open(u,\"_blank\"))});return a},L=function(){fetch(f+'?_='+Date.now()).then(function(r){return r.ok?r.text():Promise.reject()}).then(function(txt){var rows=C(txt),g=document.getElementById(\"grid\");g.innerHTML=\"\";if(!rows.length)return void(document.getElementById(\"empty\")&&(document.getElementById(\"empty\").style.display=\"block\",document.getElementById(\"empty\").textContent=t.e));rows.forEach(function(rw){var p=P(rw);p.length>=3&&g.appendChild(D(p[0],p[1],p[2]))})}).catch(function(){document.getElementById(\"empty\")&&(document.getElementById(\"empty\").style.display=\"block\",document.getElementById(\"empty\").textContent=t.e)})}();document.querySelector('.theme-toggle').addEventListener('click',function(){document.body.classList.toggle('light')});}();</script></body></html>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MEMTAG SOUNDS</title>
+<style>
+:root{
+  --gap:16px;
+  --radius:20px;
+  --size:180px;
+  --bwidth:6px;
+  --tcolor:#fff;
+  --bgdark:#0f1724;
+  --bglight:#f0f0f0;
+  --textblur:12px;
+}
+body{
+  margin:0;font-family:Inter,system-ui,sans-serif;padding:20px;
+  background:var(--bgdark);color:var(--tcolor);transition:all .3s
+}
+body.light{
+  background:var(--bglight);color:#111
+}
+h1{
+  text-align:center;margin-bottom:20px;font-size:36px;font-weight:800;letter-spacing:1px
+}
+.grid{
+  display:grid;gap:var(--gap);grid-template-columns:repeat(8,1fr)
+}
+@media(max-width:1200px){.grid{grid-template-columns:repeat(6,1fr)}}
+@media(max-width:992px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{
+  position:relative;width:100%;padding-top:100%;border-radius:var(--radius);
+  overflow:hidden;cursor:pointer;background-size:cover;background-position:center;
+  display:block;border:var(--bwidth) solid rgba(255,255,255,0.4);
+  transition:transform .3s,border-color .3s,box-shadow .3s;
+  box-shadow:0 15px 50px rgba(0,0,0,.5);
+}
+.card:hover{
+  transform:scale(1.05);
+  border-color:rgba(255,255,255,0.8);
+  box-shadow:0 25px 70px rgba(0,0,0,.6);
+}
+.card-inner{
+  position:absolute;inset:0;display:flex;align-items:flex-end;
+  justify-content:center;flex-direction:column
+}
+.bg-overlay{
+  position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.4),transparent);
+  transition:background .3s
+}
+.text-row{
+  width:100%;text-align:center;padding:12px 0;font-weight:700;font-size:18px;
+  background:rgba(0,0,0,0.5);backdrop-filter:blur(var(--textblur));color:var(--tcolor);
+  transition:all .3s;font-family:Inter,sans-serif
+}
+body.light .text-row{
+  background:rgba(255,255,255,0.5);color:#111
+}
+.theme-toggle{
+  position:fixed;top:20px;right:20px;padding:10px 14px;background:#666;color:#fff;
+  border:none;border-radius:8px;cursor:pointer;transition:all .3s;z-index:10
+}
+body.light .theme-toggle{background:#ccc;color:#111}
+.footer{
+  text-align:center;margin-top:50px;font-size:14px;line-height:1.5;color:var(--tcolor)
+}
+body.light .footer{color:#111}
+.card span{font-size:16px;letter-spacing:0.5px}
+</style>
+</head>
+<body>
+<h1>MEMTAG SOUNDS</h1>
+<button class="theme-toggle">Тема</button>
+<div class="grid" id="grid"></div>
+<div class="footer">Developed by MEMTAG<br>
+<a href="https://t.me/mem_soundtag" target="_blank">Telegram</a> | 
+<a href="https://www.tiktok.com/@mem.tag" target="_blank">TikTok</a></div>
+<script>
+!function(){
+var f="snd.txt",l=600,
+r=(navigator.language||"en").slice(0,2),
+s={uk:{c:"Скопійовано",e:"Файл snd.txt не знайдено або пустий"},
+   ru:{c:"Скопировано",e:"Файл snd.txt не найден или пуст"},
+   en:{c:"Copied",e:"snd.txt not found or empty"}},
+t=s[r]||s.en;
+
+function C(a){return a.split(/\r?\n/).map(x=>x.trim()).filter(x=>x&&x[0]!="#")}
+function P(a){return a.split(",").map(x=>x.trim())}
+function B(txt,b){try{navigator.clipboard&&navigator.clipboard.writeText?
+navigator.clipboard.writeText(txt).then(()=>S(b)):
+(ta=document.createElement("textarea")).value=txt,document.body.appendChild(ta),ta.select(),document.execCommand("copy"),ta.remove(),S(b)}catch(e){}}
+function S(b){b.classList.add("show");setTimeout(()=>b.classList.remove("show"),1500)}
+function D(n,u,i){
+  var a=document.createElement("div");a.className="card";a.style.backgroundImage="url("+i+")";
+  var inner=document.createElement("div");inner.className="card-inner";
+  var overlay=document.createElement("div");overlay.className="bg-overlay";inner.appendChild(overlay);
+  var text=document.createElement("div");text.className="text-row";text.textContent=n;inner.appendChild(text);
+  a.appendChild(inner);
+  var p=null;
+  a.addEventListener("pointerdown",()=>{p=setTimeout(()=>{p=null;B(u,a)},l)});
+  a.addEventListener("pointerup",()=>{p?(clearTimeout(p),p=null,setTimeout(()=>{window.open(u,"_blank")},250)):window.open(u,"_blank")});
+  a.addEventListener("pointercancel",()=>{p&&(clearTimeout(p),p=null)});
+  a.addEventListener("keydown",e=>{"Enter"===e.key&&(e.shiftKey?B(u,a):window.open(u,"_blank"))});
+  return a
+}
+
+fetch(f+'?_='+Date.now()).then(r=>r.ok?r.text():Promise.reject()).then(txt=>{
+  var rows=C(txt),g=document.getElementById("grid");g.innerHTML="";
+  if(!rows.length){var e=document.getElementById("empty");e&&(e.style.display="block",e.textContent=t.e);return}
+  rows.forEach(rw=>{var p=P(rw);p.length>=3&&g.appendChild(D(p[0],p[1],p[2]))})
+}).catch(()=>{var e=document.getElementById("empty");e&&(e.style.display="block",e.textContent=t.e)})
+
+document.querySelector('.theme-toggle').addEventListener('click',()=>document.body.classList.toggle('light'));
+}();
+</script>
+</body>
+</html>
