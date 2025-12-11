@@ -7,10 +7,9 @@
 <style>
 :root{
   --gap:12px;
-  --radius:14px;
-  --height:140px;
-  --border:2px solid rgba(255,255,255,0.2);
-  --text-bg:rgba(0,0,0,0.4);
+  --radius:16px;
+  --height:160px;
+  --border-width:4px;
 }
 body{margin:0;font-family:sans-serif;background:#0f1724;color:#fff;padding:20px;transition:background .3s,color .3s}
 body.light{background:#f0f0f0;color:#111}
@@ -22,18 +21,24 @@ h1{text-align:center;margin-bottom:20px;font-size:32px}
 .card{
   position:relative;height:var(--height);border-radius:var(--radius);overflow:hidden;
   cursor:pointer;background-size:cover;background-position:center;
-  display:flex;align-items:flex-start;justify-content:center;text-align:center;
-  transition:transform .2s, border-color .3s; border:var(--border);
+  display:flex;align-items:flex-end;justify-content:center;
+  border:var(--border-width) solid rgba(255,255,255,0.3);
+  transition:transform .2s, border-color .3s;
 }
-.card:hover{transform:scale(1.03);border-color:rgba(255,255,255,0.5)}
+.card:hover{transform:scale(1.03);border-color:rgba(255,255,255,0.7)}
+.bg-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,0.3);
+  transition:background .3s;
+}
 .card span{
   position:relative;z-index:2;
-  padding:4px 8px;border-radius:6px;
-  font-weight:bold;
-  background:var(--text-bg);
+  width:100%;text-align:center;
+  padding:6px 8px;margin:0;
+  font-weight:bold;font-size:16px;
+  background:rgba(0,0,0,0.4);
   backdrop-filter:blur(6px);
+  color:#fff;
 }
-body.light .card{border:var(--border)}
 body.light .card span{background:rgba(255,255,255,0.4);color:#111}
 .theme-toggle{
   position:fixed;top:20px;right:20px;padding:8px 12px;
@@ -52,16 +57,16 @@ fetch('snd.txt').then(r=>r.text()).then(txt=>{
   txt.split(/\r?\n/).filter(l=>l.trim()).forEach(l=>{
     const [name,url,img]=l.split(',').map(s=>s.trim());
     const a=document.createElement('a');
-    a.href=url;a.target='_blank';a.className='card';a.style.backgroundImage=`url(${img})`;
+    a.href=url;a.target='_blank';a.className='card';
+    a.style.backgroundImage=`url(${img})`;
+    const overlay=document.createElement('div');overlay.className='bg-overlay';a.appendChild(overlay);
     const span=document.createElement('span');span.textContent=name;a.appendChild(span);
     grid.appendChild(a);
   });
 });
 
 const btn=document.querySelector('.theme-toggle');
-btn.addEventListener('click',()=>{
-  document.body.classList.toggle('light');
-});
+btn.addEventListener('click',()=>document.body.classList.toggle('light'));
 </script>
 </body>
 </html>
