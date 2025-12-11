@@ -5,31 +5,62 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MEMTAG SOUNDS</title>
 <style>
-body{margin:0;font-family:sans-serif;background:#0f1724;color:#fff;padding:20px}
+:root{
+  --gap:12px;
+  --radius:14px;
+  --height:140px;
+  --border:2px solid rgba(255,255,255,0.2);
+  --text-bg:rgba(0,0,0,0.4);
+}
+body{margin:0;font-family:sans-serif;background:#0f1724;color:#fff;padding:20px;transition:background .3s,color .3s}
+body.light{background:#f0f0f0;color:#111}
 h1{text-align:center;margin-bottom:20px;font-size:32px}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(8,1fr)}
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(8,1fr)}
 @media(max-width:1200px){.grid{grid-template-columns:repeat(6,1fr)}}
 @media(max-width:992px){.grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
-.card{position:relative;height:140px;border-radius:14px;overflow:hidden;cursor:pointer;background-size:cover;background-position:center;display:flex;align-items:flex-start;justify-content:center;text-align:center;backdrop-filter:blur(8px);transition:transform .2s}
-.card:hover{transform:scale(1.03)}
-.card span{background:rgba(0,0,0,0.5);padding:4px 8px;border-radius:6px;margin-top:8px;position:relative;z-index:2;font-weight:bold}
+.card{
+  position:relative;height:var(--height);border-radius:var(--radius);overflow:hidden;
+  cursor:pointer;background-size:cover;background-position:center;
+  display:flex;align-items:flex-start;justify-content:center;text-align:center;
+  transition:transform .2s, border-color .3s; border:var(--border);
+}
+.card:hover{transform:scale(1.03);border-color:rgba(255,255,255,0.5)}
+.card span{
+  position:relative;z-index:2;
+  padding:4px 8px;border-radius:6px;
+  font-weight:bold;
+  background:var(--text-bg);
+  backdrop-filter:blur(6px);
+}
+body.light .card{border:var(--border)}
+body.light .card span{background:rgba(255,255,255,0.4);color:#111}
+.theme-toggle{
+  position:fixed;top:20px;right:20px;padding:8px 12px;
+  background:#666;color:#fff;border:none;border-radius:6px;cursor:pointer;
+}
+body.light .theme-toggle{background:#ccc;color:#111}
 </style>
 </head>
 <body>
 <h1>MEMTAG SOUNDS</h1>
+<button class="theme-toggle">Тема</button>
 <div class="grid" id="grid"></div>
 <script>
+const grid=document.getElementById('grid');
 fetch('snd.txt').then(r=>r.text()).then(txt=>{
-  const lines=txt.split(/\r?\n/).filter(l=>l.trim());
-  const grid=document.getElementById('grid');
-  lines.forEach(l=>{
+  txt.split(/\r?\n/).filter(l=>l.trim()).forEach(l=>{
     const [name,url,img]=l.split(',').map(s=>s.trim());
     const a=document.createElement('a');
     a.href=url;a.target='_blank';a.className='card';a.style.backgroundImage=`url(${img})`;
     const span=document.createElement('span');span.textContent=name;a.appendChild(span);
     grid.appendChild(a);
   });
+});
+
+const btn=document.querySelector('.theme-toggle');
+btn.addEventListener('click',()=>{
+  document.body.classList.toggle('light');
 });
 </script>
 </body>
