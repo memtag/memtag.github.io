@@ -1,2 +1,5 @@
+"Memtag"
 ston, https://memtag.github.io/n/, https://memtag.github.io/n/image.jpg
 oudap, https://memtag.github.io/o/, https://memtag.github.io/o/image.jpg
+"Brainrot"
+tung-tung-tung sahur, https://memtag.github.io/p/el/, https://memtag.github.io/p/el/image.jpg
