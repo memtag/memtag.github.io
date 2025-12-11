@@ -1,1 +1,2 @@
-Ston, https://memtag.github.io/n/, https://memtag.github.io/n/image.jpg
+ston, https://memtag.github.io/n/, https://memtag.github.io/n/image.jpg
+oudap, https://memtag.github.io/o/, https://memtag.github.io/o/image.jpg
