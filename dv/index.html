@@ -1,1 +1,152 @@
-<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Error</title><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Ccircle cx='50' cy='50' r='50'/%3E%3C/clipPath%3E%3C/defs%3E%3Cimage clip-path='url(%23c)' href='https://memtag.github.io/snd/fv/512x512.png' width='100' height='100'/%3E%3C/svg%3E"><link rel="icon" sizes="16x16" href="https://memtag.github.io/snd/fv/16x16.png"><link rel="icon" sizes="32x32" href="https://memtag.github.io/snd/fv/32x32.png"><link rel="icon" sizes="48x48" href="https://memtag.github.io/snd/fv/48x48.png"><link rel="apple-touch-icon" sizes="180x180" href="https://memtag.github.io/snd/fv/180x180.png"><style>body{background:#121212;color:#fff;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;height:100vh;margin:0;padding-top:50px;overflow:hidden;text-align:center}.e{font-size:100px;width:150px;height:150px;line-height:150px;border-radius:50%;color:#ffcc00;margin-bottom:20px;border:3px solid #ffcc00;display:inline-block}#r{margin-bottom:20px;padding:10px 20px;border-radius:20px;border:none;background:#333;color:#fff;font-size:16px}.i{display:none}.i img{border-radius
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Error</title>
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Ccircle cx='50' cy='50' r='50'/%3E%3C/clipPath%3E%3C/defs%3E%3Cimage clip-path='url(%23c)' href='https://memtag.github.io/snd/fv/512x512.png' width='100' height='100'/%3E%3C/svg%3E">
+<link rel="icon" sizes="16x16" href="https://memtag.github.io/snd/fv/16x16.png">
+<link rel="icon" sizes="32x32" href="https://memtag.github.io/snd/fv/32x32.png">
+<link rel="icon" sizes="48x48" href="https://memtag.github.io/snd/fv/48x48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://memtag.github.io/snd/fv/180x180.png">
+
+<style>
+body{background:#121212;color:#fff;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100vh;margin:0;padding-top:50px;text-align:center;overflow:hidden}
+.e{font-size:100px;width:150px;height:150px;line-height:150px;border-radius:50%;border:3px solid #ffcc00;color:#ffcc00;margin-bottom:20px}
+#t{font-size:18px;margin-bottom:20px}
+#r{padding:10px 20px;border-radius:20px;border:none;background:#333;color:#fff;font-size:16px}
+.i{display:none}
+.i img{width:150px;border-radius:50%}
+.m{margin-top:10px;padding:10px;border-radius:20px;border:none;background:#333;color:#fff}
+.l{display:none;margin-top:20px}
+.l a{color:#fff;background:#333;padding:10px;border-radius:5px;margin:5px;display:inline-block}
+#a{display:none}
+#ad{position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:999}
+</style>
+</head>
+
+<body>
+
+<div class="e" id="e">⚠</div>
+<div id="t"></div>
+<button id="r"></button>
+
+<div class="i">
+  <img src="image.jpg">
+  <button class="m" id="mute">🔇 Mute</button>
+</div>
+
+<audio id="a" src="sound.mp3" loop></audio>
+
+<div class="l">
+  <a href="https://t.me/mem_soundtag" target="_blank">Telegram</a>
+  <a href="https://tiktok.com/@mem.tag" target="_blank">TikTok</a>
+</div>
+
+<div id="ad"></div>
+
+<script>
+(function(){
+/* ===== t=m ===== */
+if(location.search.includes("t=m")){
+  document.body.innerHTML=`
+  <div style="min-height:100vh;background:linear-gradient(135deg,#0f0229,#1a0033,#2a0066);
+  color:#fff;font-family:system-ui;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:30px">
+
+  <img src="https://memtag.github.io/snd/max.png" style="width:130px;margin-bottom:25px">
+
+  <div id="txt" style="font-size:22px;margin-bottom:25px">
+    Нажмите на кнопку чтобы отменить скачивание
+  </div>
+
+  <div style="width:80%;max-width:360px;height:10px;background:#222;border-radius:10px;overflow:hidden;margin-bottom:25px">
+    <div id="bar" style="width:0;height:100%;background:#22c55e"></div>
+  </div>
+
+  <button id="btn" style="
+    width:360px;max-width:90%;height:80px;
+    font-size:22px;font-weight:900;
+    border-radius:50px;border:4px solid #ff3366;
+    background:rgba(255,0,50,.25);color:#ff3366">
+    Отменить скачивание
+  </button>
+  </div>`;
+
+  const audio=new Audio("sound.mp3");
+  audio.loop=true;
+
+  let started=false,down=true,prog=0;
+  document.body.addEventListener("click",()=>{if(!started){started=true;audio.play().catch(()=>{})}}, {once:true});
+
+  const bar=document.getElementById("bar");
+  const btn=document.getElementById("btn");
+  const txt=document.getElementById("txt");
+
+  const timer=setInterval(()=>{
+    if(down&&prog<100){prog++;bar.style.width=prog+"%"}
+  },120);
+
+  btn.onclick=()=>{
+    if(!started){started=true;audio.play().catch(()=>{})}
+    if(down){
+      down=false;clearInterval(timer);
+      btn.innerText="Скачать MAX";
+      btn.style.borderColor="#22c55e";
+      btn.style.background="rgba(34,197,94,.25)";
+      btn.style.color="#22c55e";
+      txt.innerHTML="Скачивание отменено<br>Вы можете скачать MAX";
+      bar.style.width="100%";
+    }else{
+      audio.currentTime=0;audio.play().catch(()=>{});
+      navigator.vibrate&&navigator.vibrate([300,100,300,100,600]);
+    }
+  };
+  return;
+}
+
+/* ===== основна сторінка ===== */
+const t=document.getElementById("t");
+const r=document.getElementById("r");
+const e=document.getElementById("e");
+const i=document.querySelector(".i");
+const a=document.getElementById("a");
+const l=document.querySelector(".l");
+const m=document.getElementById("mute");
+
+const lang=(navigator.language||"en").slice(0,2);
+const T={uk:"Сталася невідома помилка",en:"An unknown error occurred",ru:"Произошла неизвестная ошибка"};
+const B={uk:"Перезавантажити",en:"Reload",ru:"Перезагрузить"};
+
+t.innerText=T[lang]||T.en;
+r.innerText=B[lang]||B.en;
+
+let started=false;
+function start(){
+  if(started)return;
+  started=true;
+  e.style.display=t.style.display="none";
+  i.style.display=l.style.display="block";
+  a.play().catch(()=>{});
+}
+document.body.addEventListener("click",start);
+r.addEventListener("click",start);
+
+m.onclick=()=>{a.muted=!a.muted;m.innerText=a.muted?"🔊 Unmute":"🔇 Mute"};
+
+let adLoaded=false;
+document.body.addEventListener("click",()=>{
+  if(adLoaded)return;
+  adLoaded=true;
+  const s=document.createElement("script");
+  s.innerHTML="atOptions={key:'36ee0afa249e920c2921e34cf1a91275',format:'iframe',height:90,width:728,params:{}};";
+  const j=document.createElement("script");
+  j.src="https://www.highperformanceformat.com/36ee0afa249e920c2921e34cf1a91275/invoke.js";
+  document.getElementById("ad").append(s,j);
+},{once:true});
+})();
+</script>
+
+</body>
+</html>
