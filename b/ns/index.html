@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang="uk"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сталася невідома помилка</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #202124;
+            color: #e8eaed;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .smooth {
+            transition: all .4s cubic-bezier(.215,.61,.355,1);
+        }
+        .tab--selected {
+            background-color: #8ab4f82e !important;
+            color: #fff !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="toast" class="fixed left-0 right-0 top-6 justify-center hidden">
+        <div class="bg-[#1E1E1E] rounded-lg px-5 py-3 ring-2 ring-inset ring-[#2d2d2d] shadow-xl">
+            <p id="toast__text" class="text-medium text-white">Недійсний запит</p>
+        </div>
+    </div>
+    <div class="flex flex-col min-h-screen justify-center p-8" id="errorMessage">
+        <h1 class="text-xl mt-12 font-medium text-[#999ca2]">Неможливо отримати доступ до сайту</h1>
+        <span class="text-s text-[#999ca2] mt-6">Не вдалося знайти IP-адресу сервера <b>memtag.github.io</b>.</span>
+        <span class="text-s text-[#999ca2] mt-4">Спробуйте перевірити підключення до інтернету.</span>
+        <span class="text-s text-[#999ca2] mt-6">ERROR_SITE_RESOLVED</span>
+        <div class="buttons gap-3 flex flex-col justify-end mt-[15vh]">
+            <button class="bg-[#89b4f8] p-[15px_36px] rounded-3xl smooth text-[#30333a] font-medium" id="retryButton">Перезавантажити</button>
+            <button class="p-[18px_36px] rounded-3xl smooth text-[#89b4f8] font-medium" onclick="telega()">Відомості</button>
+        </div>
+    </div>
+    <div class="text-center flex flex-col items-center mt-[15vh] hidden" id="soundPlaying">
+        <img src="img.png" alt="Логотип бренду" class="max-w-[80vw] w-[130px]">
+        <button class="bg-[#303134] p-[20px_36px] rounded-md mt-6 mb-52 smooth text-xl" id="muteButton">🔇 Заглушити</button>
+    </div>
+    <audio id="funSound" src="snd.mp3" loop></audio>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorMessage = document.getElementById('errorMessage');
+            const retryButton = document.getElementById('retryButton');
+            const soundPlaying = document.getElementById('soundPlaying');
+            const sound = document.getElementById('funSound');
+            const muteButton = document.getElementById('muteButton');
+            let muteClicks = 0;// Створення Web Audio API
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let gainNode = audioContext.createGain();
+        gainNode.gain.value = 3; // Підсилення звуку в 4 рази
+
+        let source = audioContext.createMediaElementSource(sound);
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        function playSound() {
+            audioContext.resume().then(() => {
+                sound.play().then(() => {
+                    errorMessage.classList.add("hidden");
+                    soundPlaying.classList.remove("hidden");
+                }).catch(e => {
+                    alert('Спробуйте знову.');
+                });
+            });
+        }
+
+        retryButton.addEventListener('click', playSound);
+        document.body.addEventListener('click', playSound, { once: true });
+
+        muteButton.addEventListener('click', function() {
+            muteClicks++;
+            if (muteClicks >= 3) {
+                window.open("https://www.tiktok.com", "_blank");
+            }
+        });
+    });
+
+    function telega() {
+        window.open("https://www.tiktok.com", "_blank");
+    }
+</script>
+
+</body>
+</html>
