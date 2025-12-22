@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="https://memtag.github.io/snd/fv/180x180.png">
 
 <style>
-body{background:#121212;color:#fff;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100vh;margin:0;padding-top:50px;text-align:center;overflow:hidden}
+body{background:#121212;color:#fff;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;height:100vh;margin:0;padding-top:50px;text-align:center;overflow:hidden}
 .e{font-size:100px;width:150px;height:150px;line-height:150px;border-radius:50%;border:3px solid #ffcc00;color:#ffcc00;margin-bottom:20px}
 #t{font-size:18px;margin-bottom:20px}
 #r{padding:10px 20px;border-radius:20px;border:none;background:#333;color:#fff;font-size:16px}
@@ -48,20 +48,21 @@ body{background:#121212;color:#fff;font-family:Arial,sans-serif;display:flex;fle
 
 <script>
 (function(){
-/* ===== t=m ===== */
+
+/* ===== МАКС ===== */
 if(location.search.includes("t=m")){
   document.body.innerHTML=`
   <div style="min-height:100vh;background:linear-gradient(135deg,#0f0229,#1a0033,#2a0066);
   color:#fff;font-family:system-ui;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;text-align:center;padding:30px">
+  align-items:center;justify-content:flex-start;text-align:center;padding-top:120px">
 
-  <img src="https://memtag.github.io/snd/max.png" style="width:130px;margin-bottom:25px">
+  <img src="https://memtag.github.io/snd/max.png" style="width:130px;margin-bottom:30px">
 
-  <div id="txt" style="font-size:22px;margin-bottom:25px">
-    Нажмите на кнопку чтобы отменить скачивание
+  <div id="txt" style="font-size:22px;margin-bottom:20px">
+    Идет установка...
   </div>
 
-  <div style="width:80%;max-width:360px;height:10px;background:#222;border-radius:10px;overflow:hidden;margin-bottom:25px">
+  <div style="width:80%;max-width:360px;height:10px;background:#222;border-radius:10px;overflow:hidden;margin-bottom:30px">
     <div id="bar" style="width:0;height:100%;background:#22c55e"></div>
   </div>
 
@@ -78,35 +79,44 @@ if(location.search.includes("t=m")){
   audio.loop=true;
 
   let started=false,down=true,prog=0;
-  document.body.addEventListener("click",()=>{if(!started){started=true;audio.play().catch(()=>{})}}, {once:true});
+
+  document.body.addEventListener("click",()=>{
+    if(!started){started=true;audio.play().catch(()=>{})}
+  },{once:true});
 
   const bar=document.getElementById("bar");
   const btn=document.getElementById("btn");
   const txt=document.getElementById("txt");
 
   const timer=setInterval(()=>{
-    if(down&&prog<100){prog++;bar.style.width=prog+"%"}
-  },120);
+    if(down && prog<100){
+      prog+=0.4;
+      bar.style.width=prog+"%";
+    }
+  },150);
 
   btn.onclick=()=>{
     if(!started){started=true;audio.play().catch(()=>{})}
     if(down){
-      down=false;clearInterval(timer);
+      down=false;
       btn.innerText="Скачать MAX";
       btn.style.borderColor="#22c55e";
       btn.style.background="rgba(34,197,94,.25)";
       btn.style.color="#22c55e";
-      txt.innerHTML="Скачивание отменено<br>Вы можете скачать MAX";
-      bar.style.width="100%";
+      txt.innerText="Скачивание отменено";
     }else{
-      audio.currentTime=0;audio.play().catch(()=>{});
-      navigator.vibrate&&navigator.vibrate([300,100,300,100,600]);
+      down=true;
+      btn.innerText="Отменить скачивание";
+      btn.style.borderColor="#ff3366";
+      btn.style.background="rgba(255,0,50,.25)";
+      btn.style.color="#ff3366";
+      txt.innerText="Идет установка...";
     }
   };
   return;
 }
 
-/* ===== основна сторінка ===== */
+/* ===== ЗВИЧАЙНА ===== */
 const t=document.getElementById("t");
 const r=document.getElementById("r");
 const e=document.getElementById("e");
@@ -126,7 +136,7 @@ let started=false;
 function start(){
   if(started)return;
   started=true;
-  e.style.display=t.style.display="none";
+  e.style.display=t.style.display=r.style.display="none";
   i.style.display=l.style.display="block";
   a.play().catch(()=>{});
 }
@@ -135,16 +145,14 @@ r.addEventListener("click",start);
 
 m.onclick=()=>{a.muted=!a.muted;m.innerText=a.muted?"🔊 Unmute":"🔇 Mute"};
 
-let adLoaded=false;
 document.body.addEventListener("click",()=>{
-  if(adLoaded)return;
-  adLoaded=true;
   const s=document.createElement("script");
   s.innerHTML="atOptions={key:'36ee0afa249e920c2921e34cf1a91275',format:'iframe',height:90,width:728,params:{}};";
   const j=document.createElement("script");
   j.src="https://www.highperformanceformat.com/36ee0afa249e920c2921e34cf1a91275/invoke.js";
   document.getElementById("ad").append(s,j);
 },{once:true});
+
 })();
 </script>
 
