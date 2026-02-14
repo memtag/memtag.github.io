@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>No internet</title>
+<style>
+    body { background: #fff; margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; color: #3c4043; display: flex; justify-content: center; padding-top: 40px; }
+    .c { width: 100%; max-width: 560px; padding: 24px; box-sizing: border-box; }
+    
+    /* Цільний векторний динозаврик без "дирок" між пікселями */
+    .d { width: 44px; height: 47px; fill: #5f6368; margin-bottom: 32px; }
+
+    h1 { font-size: 24px; font-weight: 500; color: #202124; margin: 0 0 16px; line-height: 1.2; }
+    .s { font-size: 14px; margin-bottom: 8px; color: #5f6368; }
+    ul { margin: 0; padding-left: 20px; font-size: 14px; color: #5f6368; line-height: 1.8; }
+    .e { margin: 24px 0 16px; font-size: 12px; color: #5f6368; text-transform: uppercase; }
+    
+    .btn-blue { background: #1a73e8; color: #fff; border: none; padding: 12px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; cursor: pointer; margin-bottom: 12px; width: 100%; justify-content: center; box-sizing: border-box; text-transform: uppercase; text-decoration: none; }
+    .btn-outline { background: #fff; color: #1a73e8; border: 1px solid #dadce0; padding: 12px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; width: 100%; box-sizing: border-box; text-decoration: none; text-transform: uppercase; }
+    .i { width: 18px; height: 18px; margin-right: 12px; fill: currentColor; }
+    
+    .box { margin-top: 20px; border: 1px solid #dadce0; border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; line-height: 1.4; }
+    .ch { width: 20px; height: 20px; fill: #1a73e8; flex-shrink: 0; margin-left: 10px; }
+</style>
+</head>
+<body>
+<div class="c">
+    <svg class="d" viewBox="0 0 44 47">
+        <path d="M22 2h2v2h-2V2zm2-2h10v2h2v2h2v2h2v2h2v10h-2v2h-4v2h-2v-2h-2v-2h-2v-2h-2v-2h-2v-2h-2V6h2V4h2V2zM14 14h2v2h-2v-2zm-4 2h2v2h-2v-2zM6 18h4v2H6v-2zm-2 2h2v2H4v-2zm-2 2h2v10h2v2h2v2h2v2h12v-2h2v-2h2v-2h2v-8h2v-2h2v-2h2v-2h2v-2h2v-2h2v2h2v12h-2v2h-2v2h-2v2h-2v2h-2v2h-12v-2h-2v-2h-2v-2h-2v-2h-2V22zm12 16h2v2h-2v-2zm-4 2h2v2h-2v-2zm-4 2h4v2H6v-2zm22-4h2v2h-2v-2zm4 2h2v2h-2v-2zm2 2h4v2h-4v-2z"/>
+    </svg>
+
+    <h1 id="t">Немає Інтернету</h1>
+    <div class="s" id="s">Спробуйте:</div>
+    <ul id="list"></ul>
+    <div class="e">ERR_INTERNET_DISCONNECTED</div>
+
+    <button class="btn-blue" onclick="location.reload()">
+        <svg class="i" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        <span id="b1">Перезавантажити</span>
+    </button>
+
+    <button class="btn-outline">
+        <svg class="i" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        <span id="b2">Завантажити сторінку пізніше</span>
+    </button>
+
+    <div class="box">
+        <span id="inf">Google повідомить вас, коли сторінка буде готова. Скасувати</span>
+        <svg class="ch" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+    </div>
+</div>
+
+<script>
+(function(){
+    const data = {
+        en: { t: "No internet", s: "Try:", l: ["Turn off airplane mode", "Turn on mobile data or Wi-Fi", "Check the signal in your area"], b1: "Reload", b2: "Download page later", inf: "Google will let you know when the page is ready. Cancel" },
+        ua: { t: "Немає Інтернету", s: "Спробуйте:", l: ["вимкнути режим польоту", "увімкнути мобільний Інтернет або Wi-Fi", "перевірити сигнал у своїй місцевості"], b1: "Перезавантажити", b2: "Завантажити сторінку пізніше", inf: "Google повідомить вас, коли сторінка буде готова. Скасувати" },
+        ru: { t: "Нет Интернета", s: "Попробуйте следующее:", l: ["отключить режим полета", "включить мобильный интернет или Wi-Fi", "проверить сигнал в вашей местности"], b1: "Перезагрузить", b2: "Скачать страницу позже", inf: "Google сообщит вам, когда страница будет готова. Отмена" }
+    };
+    const lang = navigator.language.slice(0, 2);
+    const c = data[lang] || data.en;
+    document.getElementById('t').textContent = c.t;
+    document.getElementById('s').textContent = c.s;
+    document.getElementById('b1').textContent = c.b1;
+    document.getElementById('b2').textContent = c.b2;
+    document.getElementById('inf').textContent = c.inf;
+    document.title = c.t;
+    const ul = document.getElementById('list');
+    c.l.forEach(txt => { const li = document.createElement('li'); li.textContent = txt; ul.appendChild(li); });
+})();
+</script>
+</body>
+</html>
+
